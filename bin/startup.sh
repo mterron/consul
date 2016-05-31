@@ -1,5 +1,4 @@
 #!/bin/dumb-init /bin/ash
-
 log() {
     printf "%s\n" "$@"|awk '{print strftime("%FT%T%z",systime()),"[INFO] startup.sh:",$0}'
 }

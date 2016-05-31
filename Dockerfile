@@ -60,6 +60,7 @@ RUN	if [ ! -d "/native/bin" ]; then \
 	chown -R consul: /etc/consul &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
+	rm -f /sha256sums
 	rm -f consul_${CONSUL_VERSION}_*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
