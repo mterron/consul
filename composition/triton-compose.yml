@@ -1,0 +1,28 @@
+version: "2"
+# Start with a single host which will bootstrap the cluster. Once the
+# cluster is bootstrapped we can set BOOTSTRAP_HOST and scale up
+# more Consul instances.
+# By using automatic bootstrapping via `-bootstrap-expect` and adding
+# the environment variable, we can avoid having to use links. The
+# environment variable is used once at bootstrap and then forever
+# discarded by that node.
+services:
+  consul:
+    image: mterron/consul-autopilot
+    labels:
+        - triton.cns.services=consul
+    restart: always
+    mem_limit: 128m
+    network_mode: bridge
+    ports:
+        - 53
+        - 8300
+        - 8301
+        - 8302
+        - 8501
+    dns:
+        - 127.0.0.1
+    env_file: _env
+    environment:
+        - BOOTSTRAP_HOST
+

@@ -1,0 +1,8 @@
+.dockerignore
+.git
+.gitignore
+.DS_Store
+README.md
+docker-compose.yml
+makefile
+start.sh

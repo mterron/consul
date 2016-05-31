@@ -1,0 +1,5 @@
+.git-credentials
+*.zip
+*.tar.gz
+.DS_Store
+*.bak

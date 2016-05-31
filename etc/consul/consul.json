@@ -1,0 +1,37 @@
+{
+"data_dir": "/data",
+"ui_dir": "/ui",
+
+"disable_update_check": true,
+"disable_remote_exec": true,
+"log_level": "INFO",
+
+"cert_file": "/etc/tls/consul.service.consul.pem",
+"key_file": "/etc/tls/consul.service.consul.key",
+"ca_file": "/etc/tls/ca.pem",
+"verify_incoming": true,
+"verify_outgoing": true,
+"verify_server_hostname": true,
+
+"acl_master_token": "demoDEMOdemoDEMOdemo",
+"acl_default_policy": "allow",
+
+"addresses": {
+	"dns":    "0.0.0.0",
+	"https":  "0.0.0.0",
+	"http": "127.0.0.1",
+	"rpc":  "127.0.0.1"
+},
+"ports": {
+	"dns": 53,
+	"https": 8501
+},
+
+"dns_config": {
+	"only_passing": true,
+	"enable_truncate": true,
+	"allow_stale": true,
+	"max_stale": "3s"
+},
+"recursors": [ "8.8.4.4", "8.8.8.8" ]
+}

@@ -1,0 +1,73 @@
+FROM mterron/betterscratch
+MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
+
+# Set environment variables
+ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin
+
+# We don't need to expose these ports in order for other containers on Triton
+# to reach this container in the default networking environment, but if we
+# leave this here then we get the ports as well-known environment variables
+# for purposes of linking.
+EXPOSE 53 53/udp 8300 8301 8301/udp 8302 8302/udp 8501 8600 8600/udp
+
+# Copy binaries. bin directory contains startup script
+COPY bin/ /bin
+
+# Copy /etc (Consul config, ContainerPilot config)
+COPY etc/ /etc
+
+# Download dumb-init
+ENV DUMBINIT_VERSION=1.0.2
+ADD https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 /
+ADD	https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums /
+# Create links for needed tools (detects Triton) & install dumb-init
+RUN	if [ ! -d "/native/bin" ]; then \
+		ln -sf /bin/busybox.static /bin/chmod &&\
+		ln -sf /bin/busybox.static /bin/chown &&\
+		ln -sf /bin/busybox.static /bin/grep &&\
+		ln -sf /bin/busybox.static /bin/ifconfig &&\
+		ln -sf /bin/busybox.static /bin/mkdir &&\
+		ln -sf /bin/busybox.static /bin/mv &&\
+		ln -sf /bin/busybox.static /bin/rm &&\
+		ln -sf /bin/busybox.static /bin/sleep \
+	;fi &&\
+	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
+	rm sha256sums &&\
+	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
+	chmod +x /bin/dumb-init
+
+ENV CONSUL_VERSION=0.6.4
+# Download Consul binary
+ADD https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip /
+# Download Consul web UI
+ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip /
+# Download Consul integrity file
+ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS /
+# Check integrity and installs consul
+RUN grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
+	mkdir /ui &&\
+	unzip -q -o consul_${CONSUL_VERSION}_web_ui.zip -d /ui &&\
+	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
+	/bin/ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
+	rm -f /bin/ssetcap &&\
+# Add CA to system trusted store
+	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
+	touch /etc/ssl/certs/ca-consul.done &&\
+# Create Consul data directory	
+	mkdir /data &&\
+	chown -R consul: /data &&\
+	chown -R consul: /ui &&\
+	chown -R consul: /etc/consul &&\
+# Cleanup
+	rm -f consul_${CONSUL_VERSION}_*
+
+# On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
+# and your own certificates
+ONBUILD COPY consul.json etc/consul/consul.json
+ONBUILD COPY tls/ etc/tls/
+
+USER consul
+# Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
+VOLUME ["/data"]
+	
+CMD ["/bin/startup.sh"]
