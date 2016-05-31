@@ -23,27 +23,27 @@ printf "%s\n" 'Starting a Consul service'
 printf "%s\n" '>Pulling the most recent images'
 docker-compose pull
 # Set initial bootstrap host to localhost
-export BOOTSTRAP_HOST=127.0.0.1
+export CONSUL_BOOTSTRAP_HOST=127.0.0.1
 printf "%s\n" '>Starting initial container'
 docker-compose up --no-recreate -d
 
 
-BOOTSTRAP_HOST="${COMPOSE_PROJECT_NAME}_consul_1"
-printf "%s\n" "BOOTSTRAP_HOST is $BOOTSTRAP_HOST"
+CONSUL_BOOTSTRAP_HOST="${COMPOSE_PROJECT_NAME}_consul_1"
+printf "%s\n" "CONSUL_BOOTSTRAP_HOST is $CONSUL_BOOTSTRAP_HOST"
 
 # Default for production
-#BOOTSTRAP_UI_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $BOOTSTRAP_HOST)
+#BOOTSTRAP_UI_IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $CONSUL_BOOTSTRAP_HOST)
 #
 # For running on local docker-machine
 BOOTSTRAP_UI_IP=$(docker-machine ip)
 printf "%s\n" " [DEBUG] BOOTSTRAP_UI_IP is $BOOTSTRAP_UI_IP"
-BOOTSTRAP_UI_PORT=$(docker port "$BOOTSTRAP_HOST" | awk -F: '/8501/{print$2}')
+BOOTSTRAP_UI_PORT=$(docker port "$CONSUL_BOOTSTRAP_HOST" | awk -F: '/8501/{print$2}')
 printf "%s\n" " [DEBUG] BOOTSTRAP_UI_PORT is $BOOTSTRAP_UI_PORT"
 
-export BOOTSTRAP_HOST=$(docker inspect -f "{{ .NetworkSettings.Networks.${COMPOSE_PROJECT_NAME}_default.IPAddress}}" "$BOOTSTRAP_HOST")
-#BOOTSTRAP_HOST=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $BOOTSTRAP_HOST)
+export CONSUL_BOOTSTRAP_HOST=$(docker inspect -f "{{ .NetworkSettings.Networks.${COMPOSE_PROJECT_NAME}_default.IPAddress}}" "$CONSUL_BOOTSTRAP_HOST")
+#CONSUL_BOOTSTRAP_HOST=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $CONSUL_BOOTSTRAP_HOST)
 
-printf "%s\n" " [DEBUG] BOOTSTRAP_HOST is $BOOTSTRAP_HOST"
+printf "%s\n" " [DEBUG] CONSUL_BOOTSTRAP_HOST is $CONSUL_BOOTSTRAP_HOST"
 
 # Wait for the bootstrap instance
 printf '>Waiting for the bootstrap instance...'

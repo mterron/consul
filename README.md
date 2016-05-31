@@ -1,23 +1,24 @@
-# Consul autopilot pattern
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul-autopilot/master/LICENSE)
+# Consul production ready container image
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul-betterscratch/master/LICENSE)
 
 [Consul](http://www.consul.io/) in Docker, designed for availability and durability.
 
 
 ## Start a trusted Consul raft
 
-1. [Clone](https://github.com/mterron/consul-autopilot) or [download](https://github.com/mterron/consul-autopilot/archive/master.zip) this repo
-2. `cd composition` into the cloned or downloaded directory
-3. docker-compose up -d && docker-compose scale consul=3
-4. Connect to the Consul UI pointing your broser to the IP of any of the Consul containers.
+1. [Clone](https://github.com/mterron/consul-betterscratch) or [download](https://github.com/mterron/consul-betterscratch/archive/master.zip) this repo
+2. Import the example client certificate. This image requires client validation, an example certificate is provided but you should generate your own. The password for the p12 file is "demo". Also provided is a .pem and .key files for the same certificate. 
+3. `cd composition` into the cloned or downloaded directory
+4. run ./start.sh
+5. A browser with the Consul UI will open (on Mac OS X) or browse to "https://DOCKER\_IP:BOOTSTRAP\_UI\_PORT as shown on your screen.
 
 ## How it works
 
-This demo first starts up a bootstrap node that starts the raft but expects 2 additional nodes before the raft is healthy. Once this node is up and its IP address is obtained, the rest of the nodes are started and joined to the bootstrap IP address (the value is passed in the `BOOTSTRAP_HOST` environment variable).
+This demo first starts up a bootstrap node that starts the raft but expects 2 additional nodes before the raft is healthy. Once this node is up and its IP address is obtained, the rest of the nodes are started and joined to the bootstrap IP address (the value is passed in the `CONSUL_BOOTSTRAP_HOST` environment variable).
 
 If a raft instance fails, the data is preserved among the other instances and the overall availability of the service is preserved because any single instance can authoritatively answer for all instances. Applications that depend on the Consul service should re-try failed requests until they get a response.
 
-Any new raft instances need to be started with a bootstrap IP address, but after the initial cluster is created, the `BOOTSTRAP_HOST` IP address can be any host currently in the raft. This means there is no dependency on the first node after the cluster has been formed. After the raft, nodes can join `consul.service.consul`
+Any new raft instances need to be started with a bootstrap IP address, but after the initial cluster is created, the `CONSUL_BOOTSTRAP_HOST` IP address can be any host currently in the raft. This means there is no dependency on the first node after the cluster has been formed. After the raft has been initialised, nodes can join `consul.service.consul` if they are using Consul as DNS or have redirected the .consul domain to Consul.
 
 # Credit where it's due
 

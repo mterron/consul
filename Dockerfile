@@ -20,6 +20,14 @@ COPY etc/ /etc
 ENV DUMBINIT_VERSION=1.0.2
 ADD https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 /
 ADD	https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums /
+ENV CONSUL_VERSION=0.6.4
+# Download Consul binary
+ADD https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip /
+# Download Consul web UI
+ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip /
+# Download Consul integrity file
+ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS /
+
 # Create links for needed tools (detects Triton) & install dumb-init
 RUN	if [ ! -d "/native/bin" ]; then \
 		ln -sf /bin/busybox.static /bin/chmod &&\
@@ -31,25 +39,17 @@ RUN	if [ ! -d "/native/bin" ]; then \
 		ln -sf /bin/busybox.static /bin/rm &&\
 		ln -sf /bin/busybox.static /bin/sleep \
 	;fi &&\
+# Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
-	rm sha256sums &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
-	chmod +x /bin/dumb-init
-
-ENV CONSUL_VERSION=0.6.4
-# Download Consul binary
-ADD https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip /
-# Download Consul web UI
-ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip /
-# Download Consul integrity file
-ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS /
+	chmod +x /bin/dumb-init &&\
 # Check integrity and installs consul
-RUN grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
+	grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
 	mkdir /ui &&\
 	unzip -q -o consul_${CONSUL_VERSION}_web_ui.zip -d /ui &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
-	/bin/ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
-	rm -f /bin/ssetcap &&\
+# Allow Consul to bind to reserved ports (for DNS)	
+	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
@@ -59,6 +59,7 @@ RUN grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha2
 	chown -R consul: /ui &&\
 	chown -R consul: /etc/consul &&\
 # Cleanup
+	rm -f /bin/ssetcap &&\
 	rm -f consul_${CONSUL_VERSION}_*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
@@ -66,8 +67,8 @@ RUN grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha2
 ONBUILD COPY consul.json etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 
-USER consul
 # Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
-VOLUME ["/data"]
-	
+VOLUME ["/data"]	
+
+USER consul
 CMD ["/bin/startup.sh"]
