@@ -8,17 +8,17 @@ version: "2"
 # discarded by that node.
 services:
   consul:
-    image: mterron/consul-betterscratch
-    restart: always
-    mem_limit: 128m
-    ports:
-        - 8600
-        - 8300
-        - 8301
-        - 8302
-        - 8501
-    dns:
-        - 127.0.0.1
-    env_file: _env
-    environment:
-        - CONSUL_BOOTSTRAP_HOST
+	image: mterron/consul-betterscratch
+	restart: always
+	mem_limit: 128m
+	ports:
+		- 8600
+		- 8300
+		- 8301
+		- 8302
+		- 8501
+	dns:
+		- 127.0.0.1
+	env_file: _env
+	environment:
+		- CONSUL_BOOTSTRAP_HOST

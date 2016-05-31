@@ -4,7 +4,6 @@ TZ=Pacific/Auckland
 # Consul
 #
 CONSUL_DC_NAME=demodc
-CLUSTER_NAME=demo-autopilot
 CONSUL_DNS_NAME=consul.service.consul
 # Generate your own encryption token!!!!
 CONSUL_ENCRYPT_TOKEN=ISm6AS2DDICjkMdzqjZDPw==

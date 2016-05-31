@@ -48,13 +48,14 @@ RUN	if [ ! -d "/native/bin" ]; then \
 	mkdir /ui &&\
 	unzip -q -o consul_${CONSUL_VERSION}_web_ui.zip -d /ui &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
-# Allow Consul to bind to reserved ports (for DNS)	
+# Allow Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
-# Create Consul data directory	
+# Create Consul data directory
 	mkdir /data &&\
+	chmod 770 /data &&\
 	chown -R consul: /data &&\
 	chown -R consul: /ui &&\
 	chown -R consul: /etc/consul &&\
@@ -69,7 +70,7 @@ ONBUILD COPY consul.json etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 
 # Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
-VOLUME ["/data"]	
+VOLUME ["/data"]
 
 USER consul
 CMD ["/bin/startup.sh"]

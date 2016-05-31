@@ -13,8 +13,10 @@
 "verify_outgoing": true,
 "verify_server_hostname": true,
 
-"acl_master_token": "demoDEMOdemoDEMOdemo",
+"acl_datacenter": "demodc",
 "acl_default_policy": "allow",
+"acl_master_token": "demo_master_token",
+"acl_token": "demo_master_token",
 
 "addresses": {
 	"dns":    "0.0.0.0",

@@ -9,10 +9,10 @@ export COMPOSE_PROJECT_NAME=demo
 export CONSUL_QUORUM_SIZE=3
 
 while getopts "f:p:" optchar; do
-    case "${optchar}" in
-        f) export COMPOSE_FILE=${OPTARG} ;;
-        p) export COMPOSE_PROJECT_NAME=${OPTARG} ;;
-    esac
+	case "${optchar}" in
+		f) export COMPOSE_FILE=${OPTARG} ;;
+		p) export COMPOSE_PROJECT_NAME=${OPTARG} ;;
+	esac
 done
 shift $(( OPTIND - 1 ))
 
@@ -48,8 +48,8 @@ printf "%s\n" " [DEBUG] CONSUL_BOOTSTRAP_HOST is $CONSUL_BOOTSTRAP_HOST"
 # Wait for the bootstrap instance
 printf '>Waiting for the bootstrap instance...'
 until curl -fs --connect-timeout 1 http://"$BOOTSTRAP_UI_IP":"$BOOTSTRAP_UI_PORT"/ui &> /dev/null; do
-    printf '.'
-    sleep .2
+	printf '.'
+	sleep .2
 done
 
 printf "%s\n" 'The bootstrap instance is now running'
