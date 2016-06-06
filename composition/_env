@@ -2,7 +2,6 @@
 TZ=Pacific/Auckland
 
 # Consul
-#
 CONSUL_DC_NAME=demodc
 CONSUL_DNS_NAME=consul.service.consul
 # Generate your own encryption token!!!!

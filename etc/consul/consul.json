@@ -16,7 +16,6 @@
 "acl_datacenter": "demodc",
 "acl_default_policy": "allow",
 "acl_master_token": "demo_master_token",
-"acl_token": "demo_master_token",
 
 "addresses": {
 	"dns":    "0.0.0.0",
@@ -33,7 +32,12 @@
 	"only_passing": true,
 	"enable_truncate": true,
 	"allow_stale": true,
-	"max_stale": "3s"
+	"service_ttl": {
+		"*": "10s"
+	},
+	"node_ttl": {
+		"*": "1s"
+	}
 },
 "recursors": [ "8.8.4.4", "8.8.8.8" ]
 }

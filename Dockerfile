@@ -34,9 +34,7 @@ RUN	if [ ! -d "/native/bin" ]; then \
 		ln -sf /bin/busybox.static /bin/chown &&\
 		ln -sf /bin/busybox.static /bin/grep &&\
 		ln -sf /bin/busybox.static /bin/ifconfig &&\
-		ln -sf /bin/busybox.static /bin/mkdir &&\
 		ln -sf /bin/busybox.static /bin/mv &&\
-		ln -sf /bin/busybox.static /bin/rm &&\
 		ln -sf /bin/busybox.static /bin/sleep \
 	;fi &&\
 # Check integrity and installs dumb-init

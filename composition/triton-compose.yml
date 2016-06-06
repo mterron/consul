@@ -8,21 +8,21 @@ version: "2"
 # discarded by that node.
 services:
   consul:
-	image: mterron/consul-autopilot
-	labels:
-		- triton.cns.services=consul
-	restart: always
-	mem_limit: 128m
-	network_mode: bridge
-	ports:
-		- 53
-		- 8300
-		- 8301
-		- 8302
-		- 8501
-	dns:
-		- 127.0.0.1
-	env_file: _env
-	environment:
-		- BOOTSTRAP_HOST
+  image: mterron/consul-autopilot
+  labels:
+    - triton.cns.services=consul
+  restart: always
+  mem_limit: 128m
+  network_mode: bridge
+  ports:
+    - 53
+    - 8300
+    - 8301
+    - 8302
+    - 8501
+  dns:
+    - 127.0.0.1
+  env_file: _env
+  environment:
+    - BOOTSTRAP_HOST
 
