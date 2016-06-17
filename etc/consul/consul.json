@@ -34,9 +34,6 @@
 	"allow_stale": true,
 	"service_ttl": {
 		"*": "10s"
-	},
-	"node_ttl": {
-		"*": "1s"
 	}
 },
 "recursors": [ "8.8.4.4", "8.8.8.8" ]

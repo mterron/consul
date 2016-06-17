@@ -71,4 +71,4 @@ ONBUILD COPY tls/ etc/tls/
 VOLUME ["/data"]
 
 USER consul
-CMD ["/bin/startup.sh"]
+CMD ["/bin/start_consul.sh"]
