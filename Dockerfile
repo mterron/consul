@@ -23,28 +23,22 @@ ADD	https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums /
 ENV CONSUL_VERSION=0.6.4
 # Download Consul binary
 ADD https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip /
-# Download Consul web UI
-ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_web_ui.zip /
 # Download Consul integrity file
 ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS /
 
 # Create links for needed tools (detects Triton) & install dumb-init
-RUN	if [ ! -d "/native/bin" ]; then \
-		ln -sf /bin/busybox.static /bin/chmod &&\
-		ln -sf /bin/busybox.static /bin/chown &&\
-		ln -sf /bin/busybox.static /bin/grep &&\
-		ln -sf /bin/busybox.static /bin/ifconfig &&\
-		ln -sf /bin/busybox.static /bin/mv &&\
-		ln -sf /bin/busybox.static /bin/sleep \
-	;fi &&\
+RUN	ln -sf /bin/busybox.static /bin/chmod &&\
+	ln -sf /bin/busybox.static /bin/chown &&\
+	ln -sf /bin/busybox.static /bin/grep &&\
+	ln -sf /bin/busybox.static /bin/ifconfig &&\
+	ln -sf /bin/busybox.static /bin/mv &&\
+	ln -sf /bin/busybox.static /bin/sleep &&\
 # Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
 	chmod +x /bin/dumb-init &&\
-# Check integrity and installs consul
-	grep "web_ui.zip|linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
-	mkdir /ui &&\
-	unzip -q -o consul_${CONSUL_VERSION}_web_ui.zip -d /ui &&\
+# Check integrity and installs Consul
+	grep "linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
 # Allow Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
@@ -55,7 +49,6 @@ RUN	if [ ! -d "/native/bin" ]; then \
 	mkdir /data &&\
 	chmod 770 /data &&\
 	chown -R consul: /data &&\
-	chown -R consul: /ui &&\
 	chown -R consul: /etc/consul &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
