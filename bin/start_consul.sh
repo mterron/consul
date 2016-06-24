@@ -16,7 +16,6 @@ if [ -e /data/raft/raft.db ]; then
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_BOOTSTRAP_HOST" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
-		log "Setting acl_master_token"
 		if [ -z "$CONSUL_ACL_MASTER_TOKEN" ]; then
 			log "Generating acl_master_token"
 			ACL_MASTER_TOKEN=$(cat /proc/sys/kernel/random/uuid)
@@ -25,7 +24,6 @@ else
 		REPLACEMENT_ACL_MASTER_TOKEN=$(printf 's/\"acl_master_token\": .*/"acl_master_token": "%s",/' "$ACL_MASTER_TOKEN")
 		sed -i "$REPLACEMENT_ACL_MASTER_TOKEN" /etc/consul/consul.json
 
-		log "Setting acl_datacenter"
 		if [ -z "$CONSUL_ACL_DC" ]; then
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			CONSUL_ACL_DC=$CONSUL_DC_NAME

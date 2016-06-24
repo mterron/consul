@@ -52,6 +52,8 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	chmod 770 /data &&\
 	chown -R consul: /data &&\
 	chown -R consul: /etc/consul &&\
+	chmod 770 /etc/consul &&\
+	chmod 660 /etc/consul/consul.json &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
 	rm -f /sha256sums &&\
