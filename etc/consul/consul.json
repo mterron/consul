@@ -1,6 +1,5 @@
 {
 "data_dir": "/data",
-"ui_dir": "/ui",
 
 "disable_update_check": true,
 "disable_remote_exec": true,
