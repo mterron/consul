@@ -32,7 +32,9 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/grep &&\
 	ln -sf /bin/busybox.static /bin/ifconfig &&\
 	ln -sf /bin/busybox.static /bin/mv &&\
+	ln -sf /bin/busybox.static /bin/sed &&\
 	ln -sf /bin/busybox.static /bin/sleep &&\
+	ln -sf /bin/busybox.static /bin/tr &&\
 # Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
