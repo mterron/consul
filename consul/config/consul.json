@@ -1,5 +1,5 @@
 {
-"data_dir": "/data",
+"data_dir": "/consul/data",
 
 "disable_update_check": true,
 "disable_remote_exec": true,
@@ -13,7 +13,7 @@
 "verify_outgoing": true,
 "verify_server_hostname": true,
 
-"acl_datacenter": "demodc",
+"acl_datacenter": "",
 "acl_default_policy": "allow",
 "acl_master_token": "demo_master_token",
 
