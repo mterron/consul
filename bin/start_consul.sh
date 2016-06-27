@@ -18,7 +18,9 @@ else
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
 		if [ -z "$CONSUL_ACL_MASTER_TOKEN" ]; then
 			log "Generating acl_master_token"
-			CONSUL_ACL_MASTER_TOKEN=$(cat /proc/sys/kernel/random/uuid)
+			if ! CONSUL_ACL_MASTER_TOKEN=$(cat /proc/sys/kernel/random/uuid) 2>/dev/null; then
+				CONSUL_ACL_MASTER_TOKEN=$(uuidgen)
+			fi
 			log "acl_master_token is: $CONSUL_ACL_MASTER_TOKEN, please set this environment variable before starting the rest of the Consul server nodes" 
 		fi
 		REPLACEMENT_ACL_MASTER_TOKEN=$(printf 's/\"acl_master_token\": .*/"acl_master_token": "%s",/' "$CONSUL_ACL_MASTER_TOKEN")

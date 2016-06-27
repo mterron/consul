@@ -53,6 +53,11 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
+# Create Consul user
+	touch /etc/passwd &&\
+	touch /etc/group &&\
+	/bin/busybox.static addgroup consul &&\
+	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
 # Create Consul data directory
 	mkdir -p /consul/data &&\
 	chmod -R 770 /consul &&\
