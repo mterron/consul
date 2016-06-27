@@ -7,7 +7,7 @@ loge() {
 }
 
 /bin/set-timezone.sh
-if [ -e /data/raft/raft.db ]; then
+if [ -e /consul/data/raft/raft.db ]; then
 	log "Starting Consul"
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST

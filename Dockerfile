@@ -76,7 +76,7 @@ ONBUILD COPY consul.json consul/config/consul.json
 ONBUILD COPY tls/ etc/tls/
 
 # Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
-VOLUME ["/consul/data/"]
+VOLUME ["/consul/"]
 
 USER consul
 CMD ["/bin/start_consul.sh"]
