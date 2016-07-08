@@ -7,12 +7,13 @@ loge() {
 }
 
 /bin/set-timezone.sh
-if [ -e /consul/data/raft/raft.db ]; then
+if [ -e /data/raft/raft.db ]; then
+	# This is a restart
 	log "Starting Consul"
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
-	exec /bin/consul agent -server -ui -config-dir=/consul/config/ -dc="$CONSUL_DC_NAME" 
+	exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -rejoin
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_BOOTSTRAP_HOST" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
@@ -23,18 +24,18 @@ else
 			fi
 			log "acl_master_token is: $CONSUL_ACL_MASTER_TOKEN, please set this environment variable before starting the rest of the Consul server nodes" 
 		fi
-		REPLACEMENT_ACL_MASTER_TOKEN=$(printf 's/\"acl_master_token\": .*/"acl_master_token": "%s",/' "$CONSUL_ACL_MASTER_TOKEN")
-		sed -i "$REPLACEMENT_ACL_MASTER_TOKEN" /consul/config/consul.json
+		REPLACEMENT_ACL_MASTER_TOKEN="s/\"acl_master_token\": .*/\"acl_master_token\": \"${CONSUL_ACL_MASTER_TOKEN}\",/"
+		sed -i "$REPLACEMENT_ACL_MASTER_TOKEN" /etc/consul/consul.json
 
 		if [ -z "$CONSUL_ACL_DC" ]; then
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			CONSUL_ACL_DC=$CONSUL_DC_NAME
 		fi
 		CONSUL_ACL_DC=$(echo "$CONSUL_ACL_DC" | tr 'A-Z' 'a-z')
-		REPLACEMENT_ACL_DATACENTER=$(printf 's/\"acl_datacenter\": .*/"acl_datacenter": "%s",/' "$CONSUL_ACL_DC")
-		sed -i "$REPLACEMENT_ACL_DATACENTER" /consul/config/consul.json
+		REPLACEMENT_ACL_DATACENTER="s/\"acl_datacenter\": .*/\"acl_datacenter\": \"${CONSUL_ACL_DC}\",/"
+		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
 		
-		exec /bin/consul agent -server -ui -config-dir=/consul/config/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
+		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2
 		printf "You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n" >&2

@@ -16,9 +16,6 @@ COPY bin/ /bin
 # Copy /etc (Consul config, ContainerPilot config)
 COPY etc/ /etc
 
-# Copy Consul directory
-COPY consul /consul
-
 # Download dumb-init
 ENV DUMBINIT_VERSION=1.0.2
 ADD https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 /
@@ -37,10 +34,8 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/mv &&\
 	ln -sf /bin/busybox.static /bin/sed &&\
 	ln -sf /bin/busybox.static /bin/sleep &&\
+	busybox.static cp /bin/busybox.static /bin/syslogd &&\
 	ln -sf /bin/busybox.static /bin/tr &&\
-# Create the timezone file
-	touch /etc/timezone &&\
-	chmod 666 /etc/timezone &&\
 # Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
@@ -50,6 +45,7 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
 # Allow Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
+	ssetcap 'cap_net_bind_service,cap_syslog=+ep' /bin/syslogd &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
@@ -59,12 +55,12 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	/bin/busybox.static addgroup consul &&\
 	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
 # Create Consul data directory
-	mkdir -p /consul/data &&\
-	chmod -R 770 /consul &&\
-	chown -R consul: /consul &&\
-	chmod 770 /consul &&\
-	chmod 660 /consul/config/consul.json &&\
-	chown -R consul: /consul &&\
+	mkdir /data &&\
+	chown -R consul: /data &&\
+	chown -R consul: /etc/consul &&\
+	chmod 770 /etc/consul &&\
+	chmod 660 /etc/consul/consul.json &&\
+	chmod 770 /data &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
 	rm -f /sha256sums &&\
@@ -72,11 +68,12 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates
-ONBUILD COPY consul.json consul/config/consul.json
+ONBUILD COPY consul.json /etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 
-# Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
-VOLUME ["/consul/"]
+# When you build on top of this image, put Consul data on a separate volume to
+# avoid filesystem performance issues with Docker image layers
+#VOLUME ["/data"]
 
 USER consul
 CMD ["/bin/start_consul.sh"]

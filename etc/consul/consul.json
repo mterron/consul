@@ -1,5 +1,5 @@
 {
-"data_dir": "/consul/data",
+"data_dir": "/data",
 
 "disable_update_check": true,
 "disable_remote_exec": true,
@@ -15,13 +15,11 @@
 
 "acl_datacenter": "",
 "acl_default_policy": "allow",
-"acl_master_token": "demo_master_token",
+"acl_master_token": "",
 
 "addresses": {
 	"dns":    "0.0.0.0",
 	"https":  "0.0.0.0",
-	"http": "127.0.0.1",
-	"rpc":  "127.0.0.1"
 },
 "ports": {
 	"dns": 53,
