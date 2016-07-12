@@ -17,7 +17,7 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Download dumb-init
-ENV DUMBINIT_VERSION=1.0.2
+ENV DUMBINIT_VERSION=1.1.1
 ADD https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 /
 ADD	https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums /
 ENV CONSUL_VERSION=0.6.4
@@ -34,7 +34,6 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/mv &&\
 	ln -sf /bin/busybox.static /bin/sed &&\
 	ln -sf /bin/busybox.static /bin/sleep &&\
-	busybox.static cp /bin/busybox.static /bin/syslogd &&\
 	ln -sf /bin/busybox.static /bin/tr &&\
 # Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
@@ -43,9 +42,8 @@ RUN	ln -sf /bin/busybox.static /bin/chmod &&\
 # Check integrity and installs Consul
 	grep "linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
-# Allow Consul to bind to reserved ports (for DNS)
+# Allows Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
-	ssetcap 'cap_net_bind_service,cap_syslog=+ep' /bin/syslogd &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
