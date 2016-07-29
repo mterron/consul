@@ -16,18 +16,17 @@ COPY bin/ /bin
 # Copy /etc (Consul config, ContainerPilot config)
 COPY etc/ /etc
 
-# Download dumb-init
 ENV DUMBINIT_VERSION=1.1.1
-ADD https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 /
-ADD	https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums /
 ENV CONSUL_VERSION=0.6.4
+# Download dumb-init
+RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
+	wget https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums &&\
 # Download Consul binary
-ADD https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip /
+	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
-ADD	https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS /
-
+	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 # Create links for needed tools (detects Triton) & install dumb-init
-RUN	ln -sf /bin/busybox.static /bin/chmod &&\
+	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/chown &&\
 	ln -sf /bin/busybox.static /bin/grep &&\
 	ln -sf /bin/busybox.static /bin/ifconfig &&\
