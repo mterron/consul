@@ -47,11 +47,10 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
-	echo "root:x:0:0:root:/:/bin/ash" >/etc/passwd &&\
-	echo "root:x:0:root" >/etc/group &&\
+	echo "root:x:0:0:root:/tmp:/bin/ash" > /etc/passwd &&\
+	echo "root:x:0:root" > /etc/group &&\
 	/bin/busybox.static addgroup consul &&\
 	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
-	cat /etc/passwd &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
@@ -73,5 +72,5 @@ ONBUILD COPY tls/ etc/tls/
 # avoid filesystem performance issues with Docker image layers
 #VOLUME ["/data"]
 
-#USER consul
+USER consul
 CMD ["/bin/start_consul.sh"]
