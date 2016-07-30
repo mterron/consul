@@ -2,7 +2,9 @@ FROM mterron/betterscratch
 MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
-ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin
+ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
+	DUMBINIT_VERSION=1.1.1 \
+	CONSUL_VERSION=0.6.4
 
 # We don't need to expose these ports in order for other containers on Triton
 # to reach this container in the default networking environment, but if we
@@ -13,11 +15,10 @@ EXPOSE 53 53/udp 8300 8301 8301/udp 8302 8302/udp 8501 8600 8600/udp
 # Copy binaries. bin directory contains startup script
 COPY bin/ /bin
 
-# Copy /etc (Consul config, ContainerPilot config)
+# Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-ENV DUMBINIT_VERSION=1.1.1
-ENV CONSUL_VERSION=0.6.4
+
 # Download dumb-init
 RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
 	wget https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums &&\
