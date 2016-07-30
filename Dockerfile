@@ -61,7 +61,6 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION
 	chmod 770 /data &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
-	rm -f /sha256sums &&\
 	rm -f consul_${CONSUL_VERSION}_*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
