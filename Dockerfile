@@ -20,7 +20,7 @@ COPY etc/ /etc
 
 # Download dumb-init
 RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
-	wget https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums &&\
+	wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/sha256sums &&\
 # Download Consul binary
 	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
