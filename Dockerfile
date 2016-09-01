@@ -3,8 +3,8 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	DUMBINIT_VERSION=1.1.1 \
-	CONSUL_VERSION=0.6.4
+	DUMBINIT_VERSION=1.1.3 \
+	CONSUL_VERSION=0.7.0-rc2
 
 # We don't need to expose these ports in order for other containers on Triton
 # to reach this container in the default networking environment, but if we
@@ -18,7 +18,6 @@ COPY bin/ /bin
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-
 # Download dumb-init
 RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
 	wget https://github.com/Yelp/dumb-init/releases/download/v1.0.2/sha256sums &&\
@@ -26,7 +25,7 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION
 	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
 	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
-# Create links for needed tools (detects Triton) & install dumb-init
+# Create links for needed tools & install dumb-init
 	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/chown &&\
 	ln -sf /bin/busybox.static /bin/grep &&\
@@ -38,7 +37,7 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION
 # Check integrity and installs dumb-init
 	grep dumb-init_${DUMBINIT_VERSION}_amd64|sha256sum -sc &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
-	chmod +x /bin/dumb-init &&\
+	chmod +x /bin/* &&\
 # Check integrity and installs Consul
 	grep "linux_amd64.zip" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
