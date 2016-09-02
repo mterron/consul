@@ -19,12 +19,12 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Download dumb-init
-RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
-	wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/sha256sums &&\
+RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
+	wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/sha256sums &&\
 # Download Consul binary
-	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
-	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
+	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 # Create links for needed tools & install dumb-init
 	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/chown &&\
