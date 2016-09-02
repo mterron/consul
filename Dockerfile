@@ -35,11 +35,11 @@ RUN wget https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION
 	ln -sf /bin/busybox.static /bin/sleep &&\
 	ln -sf /bin/busybox.static /bin/tr &&\
 # Check integrity and installs dumb-init
-	grep "dumb-init_${DUMBINIT_VERSION}_amd64$" sha256sums|sha256sum -sc &&\
+	grep "dumb-init_${DUMBINIT_VERSION}_amd64$" sha256sums|sha256sum -c &&\
 	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
 	chmod +x /bin/* &&\
 # Check integrity and installs Consul
-	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -sc &&\
+	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
 # Allows Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
