@@ -36,7 +36,7 @@ else
 		CONSUL_ACL_DC=$(echo "$CONSUL_ACL_DC" | tr 'A-Z' 'a-z')
 		REPLACEMENT_ACL_DATACENTER="s/\"acl_datacenter\": .*/\"acl_datacenter\": \"${CONSUL_ACL_DC}\",/"
 		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
-		
+
 		# Performance configuration
 		if [ "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 			sed  '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json
@@ -50,6 +50,15 @@ else
 				medium) sed '$i"performance": {\n\t"raft_multiplier": 2\n}' /etc/consul/consul.json ;;
 				*large) sed '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json ;;
 			esac
+		# Detect GCE
+		#elif [[ condition ]]; then
+		#GCE_INSTANCE_SIZE=$(wget -O- http://metadata.google.internal/computeMetadata/v1/instance/machine-type)
+		# Detect Azure
+		#elif [[ condition ]]; then
+		#statements
+		# Detect Digital Ocean
+		#elif [[ condition ]]; then
+		#statements
 		fi
 
 		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
