@@ -4,7 +4,6 @@
 "disable_update_check": true,
 "disable_remote_exec": true,
 "log_level": "warn",
-"skip_leave_on_interrupt": true,
 
 "cert_file": "/etc/tls/consul.service.consul.pem",
 "key_file": "/etc/tls/consul.service.consul.key",
@@ -30,5 +29,9 @@
 	"only_passing": true,
 	"enable_truncate": true,
 	"allow_stale": true
+},
+
+"performance": { 
+	"raft_multiplier": 1 
 }
 }

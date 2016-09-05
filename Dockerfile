@@ -29,6 +29,7 @@ RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERS
 	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/chown &&\
 	ln -sf /bin/busybox.static /bin/grep &&\
+	ln -sf /bin/busybox.static /bin/head &&\
 	ln -sf /bin/busybox.static /bin/ifconfig &&\
 	ln -sf /bin/busybox.static /bin/mv &&\
 	ln -sf /bin/busybox.static /bin/sed &&\
