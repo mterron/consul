@@ -38,27 +38,30 @@ else
 		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
 
 		# Performance configuration
+		sed -i '$!s/}$/},/g' /etc/consul/consul.json
 		if [ "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
-			sed  '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json
+			sed -i '$i,"performance": { "raft_multiplier": 1 }' /etc/consul/consul.json
 		# Detect Amazon EC2
 		elif [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" = 'ec2' ]; then 
 			EC2_INSTANCE_SIZE=$(wget -q -O - 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')
 			case "$EC2_INSTANCE_SIZE" in
-				nano) sed '$i"performance": {\n\t"raft_multiplier": 6\n}' /etc/consul/consul.json ;;
-				micro) sed '$i"performance": {\n\t"raft_multiplier": 5\n}' /etc/consul/consul.json ;;
-				small) sed '$i"performance": {\n\t"raft_multiplier": 4\n}' /etc/consul/consul.json ;;
-				medium) sed '$i"performance": {\n\t"raft_multiplier": 2\n}' /etc/consul/consul.json ;;
-				*large) sed '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json ;;
+				nano) sed -i '$i"performance": {\n\t"raft_multiplier": 5\n}' /etc/consul/consul.json ;;
+				micro) sed -i '$i"performance": {\n\t"raft_multiplier": 4\n}' /etc/consul/consul.json ;;
+				small) sed -i '$i"performance": {\n\t"raft_multiplier": 3\n}' /etc/consul/consul.json ;;
+				medium) sed -i '$i"performance": {\n\t"raft_multiplier": 2\n}' /etc/consul/consul.json ;;
+				*large) sed -i '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json ;;
 			esac
 		# Detect GCE
 		#elif [[ condition ]]; then
 		#GCE_INSTANCE_SIZE=$(wget -O- http://metadata.google.internal/computeMetadata/v1/instance/machine-type)
 		# Detect Azure
-		#elif [[ condition ]]; then
+		#elif dmesg | grep -i 'Microsoft HyperV'; then
 		#statements
 		# Detect Digital Ocean
 		#elif [[ condition ]]; then
 		#statements
+		else 
+			sed '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json
 		fi
 
 		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
