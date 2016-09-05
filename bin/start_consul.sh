@@ -60,8 +60,6 @@ else
 		# Detect Digital Ocean
 		#elif [[ condition ]]; then
 		#statements
-		else 
-			sed '$i"performance": {\n\t"raft_multiplier": 1\n}' /etc/consul/consul.json
 		fi
 
 		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
