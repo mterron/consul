@@ -14,7 +14,7 @@ if [ -e /data/raft/raft.db ]; then
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
-	exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -rejoin
+	exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -rejoin
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_BOOTSTRAP_HOST" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
@@ -61,7 +61,7 @@ else
 			fi
 		fi
 		
-		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -dc="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
+		exec /bin/consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="$CONSUL_BOOTSTRAP_HOST" -retry-join="$CONSUL_DNS_NAME"
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2
 		printf "You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n" >&2
