@@ -33,7 +33,7 @@ else
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			CONSUL_ACL_DC=$CONSUL_DC_NAME
 		fi
-		CONSUL_ACL_DC=$(echo "$CONSUL_ACL_DC" | tr 'A-Z' 'a-z')
+		CONSUL_ACL_DC=$(printf "$CONSUL_ACL_DC" | tr '[:upper:]' '[:lower:]')
 		REPLACEMENT_ACL_DATACENTER="s/\"acl_datacenter\": .*/\"acl_datacenter\": \"${CONSUL_ACL_DC}\",/"
 		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
 
