@@ -4,7 +4,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 	DUMBINIT_VERSION=1.1.3 \
-	CONSUL_VERSION=0.7.0-rc2
+	CONSUL_VERSION=0.7.0
 
 # We don't need to expose these ports in order for other containers on Triton
 # to reach this container in the default networking environment, but if we
