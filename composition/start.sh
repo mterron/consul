@@ -56,6 +56,7 @@ until curl -fs --connect-timeout 1 http://"$BOOTSTRAP_UI_IP":"$BOOTSTRAP_UI_PORT
 	sleep .2
 done
 
+sleep 5
 printf "%s\n" 'The bootstrap instance is now running'
 printf "%s\n" "Dashboard: https://$BOOTSTRAP_UI:$BOOTSTRAP_UI_PORT/ui/"
 # Open browser pointing to the Consul UI

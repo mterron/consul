@@ -26,9 +26,7 @@
 },
 
 "dns_config": {
-	"only_passing": true,
-	"enable_truncate": true,
-	"allow_stale": true
+	"enable_truncate": true
 },
 
 "performance": { 
