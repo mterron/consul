@@ -6,7 +6,7 @@ command -v docker >/dev/null 2>&1 || { printf "%s\n" "Docker is required, but do
 # default values which can be overriden by -f or -p flags
 export COMPOSE_FILE=
 export COMPOSE_PROJECT_NAME=demo
-export CONSUL_QUORUM_SIZE=3
+export CONSUL_CLUSTER_SIZE=3
 
 while getopts "f:p:" optchar; do
 	case "${optchar}" in
@@ -64,4 +64,4 @@ command -v open >/dev/null 2>&1 && open https://"$BOOTSTRAP_UI_IP":"$BOOTSTRAP_U
 
 # Scale up the cluster
 printf "%s\n" 'Scaling the Consul raft to three nodes'
-docker-compose -p "$COMPOSE_PROJECT_NAME" scale consul=$CONSUL_QUORUM_SIZE
+docker-compose -p "$COMPOSE_PROJECT_NAME" scale consul=$CONSUL_CLUSTER_SIZE
