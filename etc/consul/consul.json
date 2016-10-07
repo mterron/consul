@@ -26,10 +26,11 @@
 },
 
 "dns_config": {
+	"only_passing": true,
 	"enable_truncate": true
 },
 
-"performance": { 
-	"raft_multiplier": 1 
+"performance": {
+	"raft_multiplier": 1
 }
 }
