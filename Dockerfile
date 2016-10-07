@@ -50,6 +50,7 @@ RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERS
 # Create Consul user
 	#echo "root:x:0:0:root:/dev/shm:/bin/ash" > /etc/passwd &&\
 	#echo "root:x:0:root" > /etc/group &&\
+	touch /etc/group &&\
 	/bin/busybox.static addgroup consul &&\
 	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
 # Create Consul data directory
