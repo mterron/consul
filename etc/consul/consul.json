@@ -15,6 +15,7 @@
 "acl_datacenter": "",
 "acl_default_policy": "allow",
 "acl_master_token": "",
+"acl_down_policy": "extend-cache",
 
 "addresses": {
 	"dns":    "0.0.0.0",
@@ -26,8 +27,7 @@
 },
 
 "dns_config": {
-	"only_passing": true,
-	"enable_truncate": true
+	"enable_truncate": true,
 },
 
 "performance": {

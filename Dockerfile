@@ -3,7 +3,6 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	DUMBINIT_VERSION=1.1.3 \
 	CONSUL_VERSION=0.7.0
 
 # We don't need to expose these ports in order for other containers on Triton
@@ -18,14 +17,11 @@ COPY bin/ /bin
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-# Download dumb-init
-RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/dumb-init_${DUMBINIT_VERSION}_amd64 &&\
-	wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERSION}/sha256sums &&\
 # Download Consul binary
-	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+RUN	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
-# Create links for needed tools & install dumb-init
+# Create links for needed tools
 	ln -sf /bin/busybox.static /bin/chmod &&\
 	ln -sf /bin/busybox.static /bin/chown &&\
 	ln -sf /bin/busybox.static /bin/grep &&\
@@ -35,9 +31,6 @@ RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERS
 	ln -sf /bin/busybox.static /bin/sed &&\
 	ln -sf /bin/busybox.static /bin/sleep &&\
 	ln -sf /bin/busybox.static /bin/tr &&\
-# Check integrity and installs dumb-init
-	grep "dumb-init_${DUMBINIT_VERSION}_amd64$" sha256sums|sha256sum -c &&\
-	mv dumb-init_${DUMBINIT_VERSION}_amd64 /bin/dumb-init &&\
 	chmod +x /bin/* &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
@@ -54,6 +47,8 @@ RUN wget -q https://github.com/Yelp/dumb-init/releases/download/v${DUMBINIT_VERS
 	echo "root:x:0:root" > /etc/group &&\
 	/bin/busybox.static addgroup consul &&\
 	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
+	chmod 644 /etc/passwd &&\
+	chmod 644 /etc/group &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
