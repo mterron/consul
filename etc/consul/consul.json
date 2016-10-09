@@ -27,7 +27,7 @@
 },
 
 "dns_config": {
-	"enable_truncate": true,
+	"enable_truncate": true
 },
 
 "performance": {
