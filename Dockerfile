@@ -57,7 +57,9 @@ RUN	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CON
 	chmod 660 /etc/consul/consul.json &&\
 	chmod 770 /data &&\
 # Hostname configuration
-	hostname "$(hostname).node.consul" &&\
+	busybox.static &&\
+	busybox.static id &&\
+	hostname -f "$(hostname).node.consul" &&\
 # Cleanup
 	rm -f /bin/ssetcap &&\
 	rm -f consul_${CONSUL_VERSION}_* sha256sums .ash*
