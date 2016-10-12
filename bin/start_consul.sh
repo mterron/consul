@@ -7,6 +7,7 @@ loge() {
 }
 
 /bin/set-timezone.sh
+hostname "$HOSTNAME.node.${CONSUL_DNS:-consul}"
 
 # Performance configuration
 if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
@@ -66,7 +67,7 @@ else
 		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
 
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
-			log "Bootstrap host is $(hostname)"
+			log "Bootstrap host is $(hostname -s)"
 		fi
 
 		exec consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
