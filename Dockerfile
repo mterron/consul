@@ -1,4 +1,4 @@
-FROM mterron/betterscratch
+FROM busybox:musl
 MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
@@ -17,21 +17,15 @@ COPY bin/ /bin
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
+# Add ssl_helper
+ADD https://busybox.net/downloads/binaries/ssl_helper-x86_64 /bin/
+
+RUN	mv /bin/ssl_helper-x86_64 /bin/ssl_helper &&\
+	chmod +x /bin/* &&\
 # Download Consul binary
-RUN	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
-# Create links for needed tools
-	ln -sf /bin/busybox.static /bin/chmod &&\
-	ln -sf /bin/busybox.static /bin/chown &&\
-	ln -sf /bin/busybox.static /bin/grep &&\
-	ln -sf /bin/busybox.static /bin/head &&\
-	ln -sf /bin/busybox.static /bin/ifconfig &&\
-	ln -sf /bin/busybox.static /bin/mv &&\
-	ln -sf /bin/busybox.static /bin/sed &&\
-	ln -sf /bin/busybox.static /bin/sleep &&\
-	ln -sf /bin/busybox.static /bin/tr &&\
-	chmod +x /bin/* &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
@@ -41,14 +35,9 @@ RUN	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CON
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
-	mkdir /root &&\
-	chmod 700 /root &&\
-	echo "root:x:0:0:root:/root:/bin/ash" > /etc/passwd &&\
-	echo "root:x:0:root" > /etc/group &&\
-	/bin/busybox.static addgroup consul &&\
-	/bin/busybox.static adduser -h /tmp -H -g 'Consul user' -s /dev/null -D -G consul consul &&\
-	chmod 644 /etc/passwd &&\
-	chmod 644 /etc/group &&\
+#	mkdir /root &&\
+#	chmod 700 /root &&\
+	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\

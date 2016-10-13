@@ -1,12 +1,12 @@
 # Consul production ready container image
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul-betterscratch/master/LICENSE)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul/master/LICENSE)
 
 [Consul](http://www.consul.io/) in Docker, designed for availability and durability.
 
 
 ## Start a trusted Consul raft
 
-1. [Clone](https://github.com/mterron/consul-betterscratch) or [download](https://github.com/mterron/consul-betterscratch/archive/master.zip) this repo
+1. [Clone](https://github.com/mterron/consul) or [download](https://github.com/mterron/consul/archive/master.zip) this repo
 2. Import the example client certificate. This image requires client validation, an example certificate is provided but you should generate your own. The password for the p12 file is "demo". Also provided is a .pem and .key files for the same certificate. 
 3. `cd composition` into the cloned or downloaded directory
 4. run ./start.sh

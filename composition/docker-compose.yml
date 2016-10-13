@@ -8,7 +8,7 @@ version: "2"
 # discarded by that node.
 services:
   consul:
-    image: mterron/consul-betterscratch
+    image: mterron/consul
     restart: always
     mem_limit: 128m
     ports:
