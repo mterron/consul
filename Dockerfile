@@ -32,6 +32,7 @@ RUN	mv /bin/ssl_helper-x86_64 /bin/ssl_helper &&\
 # Allows Consul to bind to reserved ports (for DNS)
 	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
 # Add CA to system trusted store
+	mkdir -p /etc/ssl/certs/ &&\
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
