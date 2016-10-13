@@ -43,7 +43,7 @@ if [ -e /data/raft/raft.db ]; then
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
-	exec consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
+	exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
@@ -70,7 +70,7 @@ else
 			log "Bootstrap host is $(hostname -s)"
 		fi
 
-		exec consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2

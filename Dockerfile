@@ -59,5 +59,5 @@ ONBUILD COPY tls/ etc/tls/
 # avoid filesystem performance issues with Docker image layers
 #VOLUME ["/data"]
 
-USER consul
+#USER consul
 CMD ["/bin/start_consul.sh"]
