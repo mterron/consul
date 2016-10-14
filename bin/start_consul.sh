@@ -10,7 +10,7 @@ loge() {
 
 # Add FQDN
 hostname "$HOSTNAME.node.${CONSUL_DNS:-consul}"
-sed -i "s/$(hostname -s)/$(hostname -s)\t$(hostname)/g" /etc/hosts
+printf "$(hostname -i)\t$(hostname)\n" >> /etc/hosts
 
 # Performance configuration
 if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
