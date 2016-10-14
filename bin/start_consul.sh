@@ -7,7 +7,10 @@ loge() {
 }
 
 /bin/set-timezone.sh
+
+# Add FQDN
 hostname "$HOSTNAME.node.${CONSUL_DNS:-consul}"
+sed -i "s/$(hostname -s)/$(hostname -s)\t$(hostname)/g" /etc/hosts
 
 # Performance configuration
 if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
