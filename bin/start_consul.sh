@@ -43,7 +43,7 @@ fi
 # Assign a privilege spec to the process that allows to bind to low ports
 # This enable Consul to bind to port 53 and acts as a DNS server for the container
 if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-	TRITON_PRIVS='/native/usr/bin/ppriv -s EIP=basic,NET_PRIVADDR -e'
+	'/native/usr/bin/ppriv -s EIP=basic,NET_PRIVADDR $$'
 fi
 
 if [ -e /data/raft/raft.db ]; then
@@ -52,7 +52,7 @@ if [ -e /data/raft/raft.db ]; then
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
-	$TRITON_PRIVS exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
+	exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
@@ -79,7 +79,7 @@ else
 			log "Bootstrap host is $(hostname -s)"
 		fi
 
-		$TRITON_PRIVS exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec setuidgid consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2
