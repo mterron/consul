@@ -36,7 +36,6 @@ RUN	chmod +x /bin/* &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
-	printf 'consul::::type=normal;defaultpriv=basic,net_privaddr\n' >>/etc/user_attr &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
