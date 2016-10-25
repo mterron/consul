@@ -18,10 +18,9 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Add ssl_helper
-ADD https://busybox.net/downloads/binaries/ssl_helper-x86_64 /bin/
+ADD https://busybox.net/downloads/binaries/ssl_helper-x86_64 /bin/ssl_helper
 
-RUN	mv /bin/ssl_helper-x86_64 /bin/ssl_helper &&\
-	chmod +x /bin/* &&\
+RUN	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
@@ -36,9 +35,8 @@ RUN	mv /bin/ssl_helper-x86_64 /bin/ssl_helper &&\
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
-#	mkdir /root &&\
-#	chmod 700 /root &&\
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
+	printf 'consul::::type=normal;defaultpriv=basic,net_privaddr\n' >>/etc/user_attr &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
