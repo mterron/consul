@@ -43,7 +43,7 @@ fi
 # Assign a privilege spec to the process that allows to bind to low ports
 # This enable Consul to bind to port 53 and acts as a DNS server for the container
 if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-	/native/usr/bin/ppriv -s I=basic,NET_PRIVADDR $$
+	/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,FILE_CHOWN_SELF,PROC_CLOCK_HIGHRES,PROC_SETID $$
 fi
 
 if [ -e /data/raft/raft.db ]; then
