@@ -15,7 +15,7 @@ printf "$(hostname -i)\t$(hostname).node.${CONSUL_DNS:-consul}\n" >> /etc/hosts
 if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 	# Detect Amazon EC2
 	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" = 'ec2' ]; then
-		EC2_INSTANCE_SIZE=$(wget -q -O - 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')
+		EC2_INSTANCE_SIZE=$(wget -q -O- http://169.254.169.254/latest/meta-data/instance-type | awk -F. '{print $2}')
 		case "$EC2_INSTANCE_SIZE" in
 			nano)   sed -i -r 's/("raft_multiplier": )(\d)/\15/' /etc/consul/consul.json ;;
 			micro)  sed -i -r 's/("raft_multiplier": )(\d)/\14/' /etc/consul/consul.json ;;
@@ -24,12 +24,12 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 			*large) sed -i -r 's/("raft_multiplier": )(\d)/\11/' /etc/consul/consul.json ;;
 		esac
 	# Detect GCE
-	elif grep -iq "Google" /sys/class/dmi/id/bios_vendor; then
+	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq "Google" /sys/class/dmi/id/bios_vendor; then
 		GCE_INSTANCE_SIZE=$(wget -q -O- http://metadata.google.internal/computeMetadata/v1/instance/machine-type)
 		case "$GCE_INSTANCE_SIZE" in
-			f1-micro)   sed -i -r 's/("raft_multiplier": )(\d)/\15/' /etc/consul/consul.json ;;
-			g1-small)   sed -i -r 's/("raft_multiplier": )(\d)/\14/' /etc/consul/consul.json ;;
-			*)			sed -i -r 's/("raft_multiplier": )(\d)/\11/' /etc/consul/consul.json ;;
+			f1-micro)	sed -i -r 's/("raft_multiplier": )(\d)/\15/' /etc/consul/consul.json ;;
+			g1-small)	sed -i -r 's/("raft_multiplier": )(\d)/\14/' /etc/consul/consul.json ;;
+			*)	  		sed -i -r 's/("raft_multiplier": )(\d)/\11/' /etc/consul/consul.json ;;
 		esac
 	# Detect Azure ([boilerplate] seems there's no metadata service yet for Azure)
 	#elif grep -iq "Hyper-V UEFI" /sys/class/dmi/id/bios_version; then
@@ -41,9 +41,10 @@ fi
 
 # Detect Joyent Triton
 # Assign a privilege spec to the process that allows to bind to low ports
-# This enable Consul to bind to port 53 and acts as a DNS server for the container
+# This enable Consul to bind to port 53 and acts as a DNS server for the container,
+# chown files, access high resolution timers and change its process id
 if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-	/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,FILE_CHOWN_SELF,PROC_CLOCK_HIGHRES,PROC_SETID $$
+	/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 fi
 
 if [ -e /data/raft/raft.db ]; then
