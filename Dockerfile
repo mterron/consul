@@ -1,15 +1,18 @@
-FROM busybox:musl
+FROM alpine:3.5
 MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=0.7.0
+	CONSUL_VERSION=0.7.5
 
-# We don't need to expose these ports in order for other containers on Triton
-# to reach this container in the default networking environment, but if we
-# leave this here then we get the ports as well-known environment variables
-# for purposes of linking.
-EXPOSE 53 53/udp 8300 8301 8301/udp 8302 8302/udp 8501 8600 8600/udp
+# Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
+# Consul agents. LAN is within the datacenter and WAN is between just the Consul
+# servers in all datacenters.
+EXPOSE 8301 8301/udp 8302 8302/udp
+
+# HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
+# use to interact with Consul.
+EXPOSE 8501 53 53/udp 8600 8600/udp
 
 # Copy binaries. bin directory contains startup script
 COPY bin/ /bin
@@ -17,10 +20,9 @@ COPY bin/ /bin
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-# Add ssl_helper
-ADD https://busybox.net/downloads/binaries/ssl_helper-x86_64 /bin/ssl_helper
-
-RUN	chmod +x /bin/* &&\
+# Install wget & libcap
+RUN	apk add --no-cache wget libcap ca-certificates&&\
+	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 # Download Consul integrity file
@@ -29,9 +31,8 @@ RUN	chmod +x /bin/* &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
 # Allows Consul to bind to reserved ports (for DNS)
-	ssetcap 'cap_net_bind_service=+ep' /bin/consul &&\
+	setcap 'cap_net_bind_service=+ep' /bin/consul &&\
 # Add CA to system trusted store
-	mkdir -p /etc/ssl/certs/ &&\
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
@@ -44,7 +45,7 @@ RUN	chmod +x /bin/* &&\
 	chmod 660 /etc/consul/consul.json &&\
 	chmod 770 /data &&\
 # Cleanup
-	rm -f /bin/ssetcap &&\
+	apk --no-cache del --purge libcap &&\
 	rm -f consul_${CONSUL_VERSION}_* sha256sums .ash*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
