@@ -21,7 +21,7 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Install wget & libcap
-RUN	apk add --no-cache wget libcap ca-certificates&&\
+RUN	apk add --no-cache wget libcap ca-certificates su-exec &&\
 	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -45,7 +45,6 @@ RUN	apk add --no-cache wget libcap ca-certificates&&\
 	chmod 660 /etc/consul/consul.json &&\
 	chmod 770 /data &&\
 # Cleanup
-	apk --no-cache del --purge libcap &&\
 	rm -f consul_${CONSUL_VERSION}_* sha256sums .ash*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME

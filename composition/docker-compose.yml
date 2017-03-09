@@ -6,6 +6,10 @@ version: "2"
 # the environment variable, we can avoid having to use links. The
 # environment variable is used once at bootstrap and then forever
 # discarded by that node.
+networks:
+  default:
+    external:
+      name: macvlan
 services:
   consul:
     image: mterron/consul
@@ -17,8 +21,8 @@ services:
       - 8301
       - 8302
       - 8501
-    dns:
-      - 172.18.0.2
+#    dns:
+#      - 172.18.0.2
     env_file: _env
     environment:
       - CONSUL_BOOTSTRAP_HOST
