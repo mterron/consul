@@ -40,6 +40,8 @@ BOOTSTRAP_UI_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{
 #}
 #fi
 
+BOOTSTRAP_UI_IP="$CONSUL_BOOTSTRAP_HOST"
+
 printf "%s\n" " [DEBUG] BOOTSTRAP_UI_IP is $BOOTSTRAP_UI_IP"
 BOOTSTRAP_UI_PORT=$(docker port "$CONSUL_BOOTSTRAP_HOST" | awk -F: '/8501/{print$2}')
 printf "%s\n" " [DEBUG] BOOTSTRAP_UI_PORT is $BOOTSTRAP_UI_PORT"
@@ -54,7 +56,7 @@ printf '>Waiting for the bootstrap instance...'
 TIMER=0
 until curl -fs --connect-timeout 1 http://"$BOOTSTRAP_UI_IP":"${BOOTSTRAP_UI_PORT-8501}"/ui &>/dev/null 
 do
-	if [ $TIMER -eq 120 ]; then
+	if [ $TIMER -eq 30 ]; then
 		break
 	fi
 	printf '.'
@@ -64,7 +66,7 @@ done
 
 sleep 5
 printf "%s\n" 'The bootstrap instance is now running'
-printf "%s\n" "Dashboard: https://$BOOTSTRAP_UI:$BOOTSTRAP_UI_PORT/ui/"
+printf "%s\n" "Dashboard: https://$BOOTSTRAP_UI_IP:$BOOTSTRAP_UI_PORT/ui/"
 # Open browser pointing to the Consul UI
 command -v open >/dev/null 2>&1 && open https://"$BOOTSTRAP_UI_IP":"$BOOTSTRAP_UI_PORT"/ui/
 

@@ -21,7 +21,7 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Install wget & libcap
-RUN	apk add --no-cache wget libcap ca-certificates su-exec &&\
+RUN	apk add --no-cache wget libcap ca-certificates su-exec tzdata &&\
 	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
