@@ -21,7 +21,7 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Install wget & libcap
-RUN	apk add --no-cache wget libcap ca-certificates su-exec tzdata &&\
+RUN	apk add --no-cache ca-certificates jq libcap su-exec tzdata wget &&\
 	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q --show-progress --progress=bar https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -30,8 +30,6 @@ RUN	apk add --no-cache wget libcap ca-certificates su-exec tzdata &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
-# Allows Consul to bind to reserved ports (for DNS)
-	setcap 'cap_net_bind_service=+ep' /bin/consul &&\
 # Add CA to system trusted store
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done &&\

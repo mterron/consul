@@ -39,12 +39,22 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 	fi
 fi
 
-# Detect Joyent Triton
-# Assign a privilege spec to the process that allows to bind to low ports
-# This enable Consul to bind to port 53 and acts as a DNS server for the container,
-# chown files, access high resolution timers and change its process id
-if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-	/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
+
+# Detect if Consul needs to bind to low ports for DNS
+CONSUL_DNS_PORT=$(jq '.ports.dns' /etc/consul/consul.conf)
+if [ "$CONSUL_DNS_PORT"  -le 1024 ]; then
+	# Joyent Triton
+	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
+		# Assign a privilege spec to the process that allows to bind to low ports, chown files,
+		# access high resolution timers and change its process id
+		# This enable Consul to bind to reserved ports and act as a DNS server for the container
+		/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
+	else
+		# Linux
+		# Assign a linux capability to the Consul binary that allows to bind to low ports
+		# This enabless Consul to bind to reserved ports and act as a DNS server for the container
+		setcap 'cap_net_bind_service=+ep' /bin/consul
+	fi
 fi
 
 if [ -e /data/raft/raft.db ]; then
