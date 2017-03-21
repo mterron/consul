@@ -21,7 +21,7 @@ export COMPOSE_HTTP_TIMEOUT=300
 
 printf "%s\n" 'Starting a Consul service'
 printf "%s\n" '>Pulling the most recent images'
-#docker-compose pull
+docker-compose pull
 # Set initial bootstrap host to localhost
 export CONSUL_BOOTSTRAP_HOST=127.0.0.1
 printf "%s\n" '>Starting initial container'
@@ -47,7 +47,7 @@ BOOTSTRAP_UI_PORT=$(docker port "$CONSUL_BOOTSTRAP_HOST" | awk -F: '/8501/{print
 printf "%s\n" " [DEBUG] BOOTSTRAP_UI_PORT is $BOOTSTRAP_UI_PORT"
 
 export CONSUL_BOOTSTRAP_HOST=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONSUL_BOOTSTRAP_HOST")
-#CONSUL_BOOTSTRAP_HOST=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' "$CONSUL_BOOTSTRAP_HOST")
+#CONSUL_BOOTSTRAP_HOST=$(docker inspect --format='{{ .NetworkSettings.IPAddress }}' "$CONSUL_BOOTSTRAP_HOST")
 
 printf "%s\n" " [DEBUG] CONSUL_BOOTSTRAP_HOST is $CONSUL_BOOTSTRAP_HOST"
 

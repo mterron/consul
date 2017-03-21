@@ -41,8 +41,8 @@ fi
 
 
 # Detect if Consul needs to bind to low ports for DNS
-CONSUL_DNS_PORT=$(jq '.ports.dns' /etc/consul/consul.conf)
-if [ "$CONSUL_DNS_PORT"  -le 1024 ]; then
+CONSUL_DNS_PORT=$(jq '.ports.dns' /etc/consul/consul.json)
+if [ "$CONSUL_DNS_PORT" -le 1024 ]; then
 	# Joyent Triton
 	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
 		# Assign a privilege spec to the process that allows to bind to low ports, chown files,
