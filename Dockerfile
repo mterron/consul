@@ -5,15 +5,6 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 	CONSUL_VERSION=0.7.5
 
-# Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
-# Consul agents. LAN is within the datacenter and WAN is between just the Consul
-# servers in all datacenters.
-EXPOSE 8301 8301/udp 8302 8302/udp
-
-# HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
-# use to interact with Consul.
-EXPOSE 8501 53 53/udp 8600 8600/udp
-
 # Copy binaries. bin directory contains startup script
 COPY bin/ /bin
 
@@ -21,7 +12,7 @@ COPY bin/ /bin
 COPY etc/ /etc
 
 # Install wget & libcap
-RUN	apk add --no-cache ca-certificates jq libcap su-exec tzdata wget &&\
+RUN	apk add --no-cache ca-certificates jq libcap su-exec tini tzdata wget &&\
 	chmod +x /bin/* &&\
 # Download Consul binary
 	wget -q --show-progress --progress=bar https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -55,4 +46,15 @@ ONBUILD COPY tls/ etc/tls/
 #VOLUME ["/data"]
 
 #USER consul
+
+ENTRYPOINT ["/sbin/tini", "-g", "--"]
 CMD ["/bin/start_consul.sh"]
+
+# Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
+# Consul agents. LAN is used within the datacenter and WAN between Consul servers
+# in all datacenters.
+# HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
+# use to interact with Consul.
+EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
+
+
