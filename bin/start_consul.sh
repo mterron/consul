@@ -52,9 +52,13 @@ if [ "$CONSUL_DNS_PORT" -le 1024 ]; then
 	else
 		# Linux
 		# Assign a linux capability to the Consul binary that allows to bind to low ports
-		# This enabless Consul to bind to reserved ports and act as a DNS server for the container
+		# This enable Consul to bind to reserved ports and act as a DNS server for the container
 		setcap 'cap_net_bind_service=+ep' /bin/consul
 	fi
+elif [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
+        # Assign a privilege spec to the process that allows to chown files,
+        # access high resolution timers and change its process id
+        /native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 fi
 
 if [ -e /data/raft/raft.db ]; then
