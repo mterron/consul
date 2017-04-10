@@ -14,9 +14,9 @@ COPY etc/ /etc
 RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 	chmod +x /bin/* &&\
 	echo 'Download Consul binary' &&\
-	curl -# -oconsul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+	curl -L# -oconsul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
-	curl -# -oconsul_${CONSUL_VERSION}_SHA256SUMS https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
+	curl -L# -oconsul_${CONSUL_VERSION}_SHA256SUMS https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
@@ -57,5 +57,3 @@ CMD ["/bin/start_consul.sh"]
 # HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
 # use to interact with Consul.
 EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
-
-
