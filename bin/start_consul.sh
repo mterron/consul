@@ -78,8 +78,18 @@ else
 			fi
 			log "acl_master_token is: $CONSUL_ACL_MASTER_TOKEN, please set this environment variable before starting the rest of the Consul server nodes"
 		fi
+
 		REPLACEMENT_ACL_MASTER_TOKEN="s/\"acl_master_token\": .*/\"acl_master_token\": \"${CONSUL_ACL_MASTER_TOKEN}\",/"
 		sed -i "$REPLACEMENT_ACL_MASTER_TOKEN" /etc/consul/consul.json
+
+#		REPLACEMENT_ACL_AGENT_MASTER_TOKEN="s/\"acl_agent_master_token\": .*/\"acl_agent_master_token\": \"${CONSUL_ACL_AGENT_MASTER_TOKEN}\",/"
+#		sed -i "$REPLACEMENT_ACL_AGENT_MASTER_TOKEN" /etc/consul/consul.json
+#
+#		REPLACEMENT_ACL_AGENT_TOKEN="s/\"acl_agent_token\": .*/\"acl_agent_token\": \"${CONSUL_ACL_AGENT_TOKEN}\",/"
+#		sed -i "$REPLACEMENT_ACL_AGENT_TOKEN" /etc/consul/consul.json
+#
+#		REPLACEMENT_ACL_TOKEN="s/\"acl_token\": .*/\"acl_token\": \"${CONSUL_ACL_TOKEN}\",/"
+#		sed -i "$REPLACEMENT_ACL_TOKEN" /etc/consul/consul.json
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
@@ -97,7 +107,7 @@ else
 		fi
 
 
-		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN" -node-id=$(cat /proc/sys/kernel/random/uuid)
 
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2

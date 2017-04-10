@@ -11,13 +11,12 @@ COPY bin/ /bin
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-# Install wget & libcap
-RUN	apk add --no-cache ca-certificates jq libcap su-exec tini tzdata wget &&\
+RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 	chmod +x /bin/* &&\
-# Download Consul binary
-	wget -q --show-progress --progress=bar https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
-# Download Consul integrity file
-	wget -q --show-progress --progress=bar https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
+	echo 'Download Consul binary' &&\
+	curl -# -oconsul_${CONSUL_VERSION}_linux_amd64.zip https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+	echo 'Download Consul integrity file' &&\
+	curl -# -oconsul_${CONSUL_VERSION}_SHA256SUMS https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
@@ -34,10 +33,12 @@ RUN	apk add --no-cache ca-certificates jq libcap su-exec tini tzdata wget &&\
 	chmod 660 /etc/consul/consul.json &&\
 	chmod 770 /data &&\
 # Cleanup
-	rm -f consul_${CONSUL_VERSION}_* sha256sums .ash*
+	rm -f consul_${CONSUL_VERSION}_* .ash*
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates
+# When building on top of this image, you want to run 'consul validate /etc/consul/consul.json'
+# to validate your Consul configuration file.
 ONBUILD COPY consul.json /etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 
