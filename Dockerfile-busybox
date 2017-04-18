@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=0.7.1
+	CONSUL_VERSION=0.8.1
 
 # Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
 # Consul agents. LAN is within the datacenter and WAN is between just the Consul

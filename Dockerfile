@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=0.8.0
+	CONSUL_VERSION=0.8.1
 
 # Copy binaries. bin directory contains startup script
 COPY bin/ /bin
