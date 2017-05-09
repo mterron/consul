@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=0.8.1
+	CONSUL_VERSION=0.8.2
 
 # Copy binaries. bin directory contains startup script
 COPY bin/ /bin
@@ -48,8 +48,8 @@ ONBUILD COPY tls/ etc/tls/
 
 #USER consul
 
-ENTRYPOINT ["/sbin/tini", "-g", "--"]
-CMD ["/bin/start_consul.sh"]
+ENTRYPOINT ["tini", "-g", "--"]
+CMD ["start_consul.sh"]
 
 # Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
 # Consul agents. LAN is used within the datacenter and WAN between Consul servers

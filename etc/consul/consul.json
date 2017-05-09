@@ -5,6 +5,8 @@
 "disable_remote_exec": true,
 "log_level": "warn",
 
+"raft_protocol": 3,
+
 "cert_file": "/etc/tls/consul.service.consul.pem",
 "key_file": "/etc/tls/consul.service.consul.key",
 "ca_file": "/etc/tls/ca.pem",
