@@ -17,19 +17,19 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" = 'ec2' ]; then
 		EC2_INSTANCE_SIZE=$(wget -q -O- http://169.254.169.254/latest/meta-data/instance-type | awk -F. '{print $2}')
 		case "$EC2_INSTANCE_SIZE" in
-			nano)   sed -i -r 's/("raft_multiplier": )(\d)/\15/' /etc/consul/consul.json ;;
-			micro)  sed -i -r 's/("raft_multiplier": )(\d)/\14/' /etc/consul/consul.json ;;
-			small)  sed -i -r 's/("raft_multiplier": )(\d)/\13/' /etc/consul/consul.json ;;
-			medium) sed -i -r 's/("raft_multiplier": )(\d)/\12/' /etc/consul/consul.json ;;
-			*large) sed -i -r 's/("raft_multiplier": )(\d)/\11/' /etc/consul/consul.json ;;
+			nano)   { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 15 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			micro)  { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 14 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			small)  { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 13 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			medium) { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 12 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			*large) { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 11 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
 		esac
 	# Detect GCE
 	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq "Google" /sys/class/dmi/id/bios_vendor; then
 		GCE_INSTANCE_SIZE=$(wget -q -O- http://metadata.google.internal/computeMetadata/v1/instance/machine-type)
 		case "$GCE_INSTANCE_SIZE" in
-			f1-micro)	sed -i -r 's/("raft_multiplier": )(\d)/\15/' /etc/consul/consul.json ;;
-			g1-small)	sed -i -r 's/("raft_multiplier": )(\d)/\14/' /etc/consul/consul.json ;;
-			*)	  		sed -i -r 's/("raft_multiplier": )(\d)/\11/' /etc/consul/consul.json ;;
+			f1-micro) { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 15 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			g1-small) { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 14 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
+			*)        { rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 11 > /etc/consul/consul.json; } < /etc/consul/consul.json ;;
 		esac
 	# Detect Azure ([boilerplate] seems there's no metadata service yet for Azure)
 	#elif grep -iq "Hyper-V UEFI" /sys/class/dmi/id/bios_version; then
@@ -56,9 +56,9 @@ if [ "$CONSUL_DNS_PORT" -le 1024 ]; then
 		setcap 'cap_net_bind_service=+ep' /bin/consul
 	fi
 elif [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-        # Assign a privilege spec to the process that allows to chown files,
-        # access high resolution timers and change its process id
-        /native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
+		# Assign a privilege spec to the process that allows to chown files,
+		# access high resolution timers and change its process id
+		/native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 fi
 
 if [ -e /data/raft/raft.db ]; then
@@ -81,26 +81,26 @@ else
 			log "acl_master_token is: $CONSUL_ACL_MASTER_TOKEN, please set this environment variable before starting the rest of the Consul server nodes"
 		fi
 
-		REPLACEMENT_ACL_MASTER_TOKEN="s/\"acl_master_token\": .*/\"acl_master_token\": \"${CONSUL_ACL_MASTER_TOKEN}\",/"
-		sed -i "$REPLACEMENT_ACL_MASTER_TOKEN" /etc/consul/consul.json
+	# Set ACL Master Token
+		{ rm /etc/consul/consul.json; jq '.acl_master_token = env.CONSUL_ACL_MASTER_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
 
-#		REPLACEMENT_ACL_AGENT_MASTER_TOKEN="s/\"acl_agent_master_token\": .*/\"acl_agent_master_token\": \"${CONSUL_ACL_AGENT_MASTER_TOKEN}\",/"
-#		sed -i "$REPLACEMENT_ACL_AGENT_MASTER_TOKEN" /etc/consul/consul.json
-#
-#		REPLACEMENT_ACL_AGENT_TOKEN="s/\"acl_agent_token\": .*/\"acl_agent_token\": \"${CONSUL_ACL_AGENT_TOKEN}\",/"
-#		sed -i "$REPLACEMENT_ACL_AGENT_TOKEN" /etc/consul/consul.json
-#
-#		REPLACEMENT_ACL_TOKEN="s/\"acl_token\": .*/\"acl_token\": \"${CONSUL_ACL_TOKEN}\",/"
-#		sed -i "$REPLACEMENT_ACL_TOKEN" /etc/consul/consul.json
+	# Set ACL Agent Master Token
+#		{ rm /etc/consul/consul.json; jq '.acl_agent_master_token = env.CONSUL_ACL_AGENT_MASTER_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
+
+	# Set ACL Agent Token
+#		{ rm /etc/consul/consul.json; jq '.acl_agent_token = env.CONSUL_ACL_AGENT_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
+
+	# Set ACL Token
+#		{ rm /etc/consul/consul.json; jq '.acl_token = env.CONSUL_ACL_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			CONSUL_ACL_DC=$CONSUL_DC_NAME
 		fi
-		CONSUL_ACL_DC=$(printf "$CONSUL_ACL_DC" | tr '[:upper:]' '[:lower:]')
-		REPLACEMENT_ACL_DATACENTER="s/\"acl_datacenter\": .*/\"acl_datacenter\": \"${CONSUL_ACL_DC}\",/"
-		sed -i "$REPLACEMENT_ACL_DATACENTER" /etc/consul/consul.json
+
+	# Set ACL Datacenter
+		{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json
 
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
 			log "Bootstrap host is $(hostname -s)"
