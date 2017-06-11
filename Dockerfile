@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.6
 MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
