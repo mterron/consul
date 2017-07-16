@@ -6,7 +6,13 @@ loge() {
 	printf "%s\n" "$@"|awk '{print strftime("%FT%T%z",systime()),"[ERROR] start_consul.sh:",$0}' >&2
 }
 
-/bin/set-timezone.sh
+if [ "$TZ" ]; then
+	set-timezone.sh
+	unset TZ
+	log "Local time set to $TZ"
+else
+    log "No timezone defined! Use host system time"
+fi
 
 # Add Consul FQDN to hosts file for convenience
 printf "$(hostname -i)\t$(hostname).node.${CONSUL_DNS:-consul}\n" >> /etc/hosts
@@ -39,23 +45,21 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 	fi
 fi
 
-
 # Detect if Consul needs to bind to low ports for DNS
 CONSUL_DNS_PORT=$(jq '.ports.dns' /etc/consul/consul.json)
 if [ "$CONSUL_DNS_PORT" -le 1024 ]; then
-	# Joyent Triton
 	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
+	# Joyent Triton
 		# Assign a privilege spec to the process that allows to bind to low ports, chown files,
 		# access high resolution timers and change its process id
-		# This enable Consul to bind to reserved ports and act as a DNS server for the container
 		/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 	else
-		# Linux
+	# Linux
 		# Assign a linux capability to the Consul binary that allows to bind to low ports
-		# This enable Consul to bind to reserved ports and act as a DNS server for the container
 		setcap 'cap_net_bind_service=+ep' /bin/consul
 	fi
 elif [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
+	# Joyent Triton
 		# Assign a privilege spec to the process that allows to chown files,
 		# access high resolution timers and change its process id
 		/native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
@@ -69,7 +73,6 @@ if [ -e /data/raft/raft.db ]; then
 	unset CONSUL_CLUSTER_SIZE
 
 	exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
-
 else
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log "Starting Consul for the first time, using CONSUL_DC_NAME & CONSUL_ENCRYPT_TOKEN & BOOTSTRAP_HOST environment variables"
@@ -90,7 +93,7 @@ else
 	# Set ACL Datacenter, ACL Master Token, ACL Agent Master Token, ACL Agent Token & ACL Token
 		{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC | .acl_master_token = env.CONSUL_ACL_MASTER_TOKEN | .acl_agent_master_token = env.CONSUL_ACL_AGENT_MASTER_TOKEN | .acl_agent_token = env.CONSUL_ACL_AGENT_TOKEN | .acl_token = env.CONSUL_ACL_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
 
-
+	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
 			log "Bootstrap host is $(hostname -s)"
 		else
@@ -98,7 +101,6 @@ else
 		fi
 
 		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
-
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2
 		printf "You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n" >&2

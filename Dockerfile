@@ -6,7 +6,7 @@ ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 	CONSUL_VERSION=0.8.5
 
 # Copy binaries. bin directory contains startup script
-COPY bin/ /bin
+COPY bin/* /usr/local/bin/
 
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
@@ -25,6 +25,7 @@ RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
+	adduser root consul &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
