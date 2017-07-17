@@ -8,14 +8,6 @@ loge() {
 	printf "%s\n" "$@"|awk '{print strftime("%FT%T%z",systime()),"[ERROR] start_consul.sh:",$0}' >&2
 }
 
-if [ "$TZ" ]; then
-	set-timezone.sh
-	unset TZ
-	log "Local time set to $TZ"
-else
-    log "No timezone defined! Use host system time"
-fi
-
 # Add Consul FQDN to hosts file for convenience
 printf "$(hostname -i)\t$(hostname).node.${CONSUL_DNS:-consul}\n" >> /etc/hosts
 
