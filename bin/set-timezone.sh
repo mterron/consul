@@ -5,7 +5,7 @@ log() {
 }
 
 apk --no-cache add tzdata
-cp /usr/share/zoneinfo/$"TZ" /etc/localtime
+cp /usr/share/zoneinfo/"$TZ" /etc/localtime
 echo "$TZ" > /etc/timezone
 apk del --purge tzdata
 log "Timezone set to $TZ"

@@ -1,4 +1,6 @@
 #!/bin/ash
+set -e
+
 log() {
 	printf "%s\n" "$@"|awk '{print strftime("%FT%T%z",systime()),"[INFO] start_consul.sh:",$0}'
 }
