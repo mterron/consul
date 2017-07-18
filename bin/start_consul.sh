@@ -1,5 +1,4 @@
 #!/bin/ash
-set -e
 
 log() {
 	printf "%s\n" "$@"|awk '{print strftime("%FT%T%z",systime()),"[INFO] start_consul.sh:",$0}'
@@ -81,10 +80,9 @@ else
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
-			CONSUL_ACL_DC=$CONSUL_DC_NAME
+			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
 
-	# Set ACL Datacenter, ACL Master Token, ACL Agent Master Token, ACL Agent Token & ACL Token
 		{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC | .acl_master_token = env.CONSUL_ACL_MASTER_TOKEN | .acl_agent_master_token = env.CONSUL_ACL_AGENT_MASTER_TOKEN | .acl_agent_token = env.CONSUL_ACL_AGENT_TOKEN | .acl_token = env.CONSUL_ACL_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json
 
 	# Log Consul bootstrap host to the console
