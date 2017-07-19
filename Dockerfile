@@ -44,6 +44,14 @@ RUN	chown -R consul: /etc/consul &&\
 # to validate your Consul configuration file.
 ONBUILD COPY consul.json /etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
+# Fix file permissions
+ONBUILD RUN chown -R consul: /etc/consul &&\
+			chmod 770 /etc/consul &&\
+			chmod 660 /etc/consul/consul.json &&\
+# Add CA to system trusted store
+			cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
+			touch /etc/ssl/certs/ca-consul.done
+
 
 # When you build on top of this image, put Consul data on a separate volume to
 # avoid filesystem performance issues with Docker image layers
