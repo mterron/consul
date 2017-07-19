@@ -5,12 +5,6 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 	CONSUL_VERSION=0.8.5
 
-# Copy binaries. bin directory contains startup script
-COPY bin/* /usr/local/bin/
-
-# Copy /etc (Consul config and certificates)
-COPY etc/ /etc
-
 RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 	chmod +x /bin/* &&\
 	echo 'Download Consul binary' &&\
@@ -20,21 +14,29 @@ RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 # Check integrity and installs Consul
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
-# Add CA to system trusted store
-	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
-	touch /etc/ssl/certs/ca-consul.done &&\
 # Create Consul user
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
 # Create Consul data directory
 	mkdir /data &&\
 	chown -R consul: /data &&\
-	chown -R consul: /etc/consul &&\
-	chmod 770 /etc/consul &&\
-	chmod 660 /etc/consul/consul.json &&\
 	chmod 770 /data &&\
 # Cleanup
 	rm -f consul_${CONSUL_VERSION}_* .ash*
+
+# Copy binaries. bin directory contains startup script
+COPY bin/* /usr/local/bin/
+
+# Copy /etc (Consul config and certificates)
+COPY etc/ /etc
+
+RUN	chown -R consul: /etc/consul &&\
+	chmod 770 /etc/consul &&\
+	chmod 660 /etc/consul/consul.json &&\
+# Add CA to system trusted store
+	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
+	touch /etc/ssl/certs/ca-consul.done
+
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates
