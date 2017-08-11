@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=0.9.0
+	CONSUL_VERSION=0.9.2
 
 RUN	apk add --no-cache ca-certificates curl jq libcap su-exec tini tzdata &&\
 	chmod +x /bin/* &&\
