@@ -12,7 +12,10 @@ ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.schema-version=$CONSUL_VERSION
+      org.label-schema.schema-version="1.0.0-rc.1" \
+      org.label-schema.version=$CONSUL_VERSION \
+      org.label-schema.description="Alpine based Consul image" \
+      org.label-schema.vendor=$MAINTAINER
 
 RUN	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
 	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
