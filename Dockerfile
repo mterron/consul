@@ -5,14 +5,14 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 ARG BUILD_DATE
 ARG VCS_REF
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.schema-version="0.9.2"
-
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 	CONSUL_VERSION=0.9.2
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.schema-version=$CONSUL_VERSION
 
 RUN	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
 	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
