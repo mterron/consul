@@ -1,5 +1,14 @@
 FROM alpine:3.6
+
 MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
+
+ARG BUILD_DATE
+ARG VCS_REF
+
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
+      org.label-schema.vcs-ref=$VCS_REF \
+	  org.label-schema.schema-version="0.9.2"
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
@@ -8,10 +17,10 @@ ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
 RUN	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
 	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
 	echo 'Download Consul binary' &&\
-	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
+	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
-	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
-	wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig &&\
+	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
+	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig &&\
 # Check integrity and installs Consul
 	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS && \
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
@@ -20,7 +29,7 @@ RUN	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wg
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
 # Cleanup
-	apk del --purge ca-certificates gnupg wget &&\
+	apk -q del --purge ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
 
 # Copy binaries. bin directory contains startup script
