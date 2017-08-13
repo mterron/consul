@@ -8,7 +8,7 @@ ARG VCS_REF
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
       org.label-schema.vcs-ref=$VCS_REF \
-	  org.label-schema.schema-version="0.9.2"
+      org.label-schema.schema-version="0.9.2"
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
