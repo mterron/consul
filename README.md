@@ -1,5 +1,5 @@
 # Consul production ready container image
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul/master/LICENSE)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mterron/consul/master/LICENSE) [![](https://images.microbadger.com/badges/image/mterron/consul.svg)](https://microbadger.com/images/mterron/consul "Get your own image badge on microbadger.com") [![](https://images.microbadger.com/badges/commit/mterron/consul.svg)](https://microbadger.com/images/mterron/consul "Get your own commit badge on microbadger.com")
 
 [Consul](http://www.consul.io/) in Docker, designed for availability and durability.
 
