@@ -16,15 +16,16 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$CONSUL_VERSION \
       org.label-schema.description="Alpine based Consul image"
 
-RUN	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
-	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+RUN	apk -q --no-cache upgrade &&\
+	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
+	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig &&\
 # Check integrity and installs Consul
-	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS && \
+	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
 # Create Consul user
@@ -54,8 +55,6 @@ RUN	mkdir -m 770 /data &&\
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates
-# When building on top of this image, you want to run 'consul validate /etc/consul/consul.json'
-# to validate your Consul configuration file.
 ONBUILD COPY consul.json /etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 # Fix file permissions
@@ -66,12 +65,6 @@ ONBUILD RUN chown -R consul: /etc/consul &&\
 			cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 			touch /etc/ssl/certs/ca-consul.done
 
-
-# When you build on top of this image, put Consul data on a separate volume to
-# avoid filesystem performance issues with Docker image layers
-#VOLUME ["/data"]
-
-#USER consul
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul.sh"]
