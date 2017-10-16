@@ -7,7 +7,8 @@ ARG VCS_REF
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=1.0.0
+	CONSUL_VERSION=1.0.0 \
+	HASHICORP_PGP_KEY=51852D87348FFC4C
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
@@ -18,7 +19,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 
 RUN	apk -q --no-cache upgrade &&\
 	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
-	gpg --keyserver pgp.mit.edu --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C &&\
+	gpg --keyserver pgp.mit.edu --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
