@@ -27,7 +27,7 @@ RUN	apk -q --no-cache upgrade &&\
 # Check integrity and installs Consul
 	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
-	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /bin &&\
+	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
 # Create Consul user
 	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
