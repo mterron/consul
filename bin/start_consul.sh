@@ -82,12 +82,12 @@ else
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
 			log "Bootstrap host is $(hostname -s)"
+			log "Please remember to bootstrap the ACL system by running: curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https)' /etc/consul/consul.json)/v1/acl/bootstrap'"
 		else
 			log "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
 		fi
 
 		consul validate /etc/consul/consul.json || exit 1
-		log "Please remember to bootstrap the ACL system by running: curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https' /etc/consul/consul.json)/v1/acl/bootstrap'"
 		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 	else
 		printf "Consul agent configuration\nUsage\n-----\n" >&2
