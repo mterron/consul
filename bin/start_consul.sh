@@ -14,8 +14,8 @@ printf "$(hostname -i)\t$(hostname).node.${CONSUL_DNS:-consul}\n" >> /etc/hosts
 if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 	# Amazon EC2
 	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" = 'ec2' ]; then
-		EC2_INSTANCE_SIZE=$(wget -q -O- 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')
-		case "$EC2_INSTANCE_SIZE" in
+		EC2_INSTANCE-TYPE=$(wget -q -O- 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')
+		case "$EC2_INSTANCE-TYPE" in
 			nano)   su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 6' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			micro)  su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 5' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			small)  su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 3' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
@@ -24,15 +24,16 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 		esac
 	# GCE
 	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq "Google" /sys/class/dmi/id/bios_vendor; then
-		GCE_INSTANCE_SIZE=$(wget -q -O- 'http://metadata.google.internal/computeMetadata/v1/instance/machine-type')
-		case "$GCE_INSTANCE_SIZE" in
+		GCE_MACHINE-TYPE=$(wget -q -O- 'http://metadata.google.internal/computeMetadata/v1/instance/machine-type')
+		case "$GCE_MACHINE-TYPE" in
 			f1-micro) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 5' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			g1-small) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 3' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			*)        su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 1' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 		esac
 	# MS Azure
-	elif grep -iq "Hyper-V UEFI" /sys/class/dmi/id/bios_version && AZURE_INSTANCE_SIZE=$(wget -q -O- --header 'Metadata: true' 'http://169.254.169.254/metadata/instance/compute/vmSize?api-version=2017-04-02'); then
-		case "$AZURE_INSTANCE_SIZE" in
+	elif grep -iq "Hyper-V UEFI" /sys/class/dmi/id/bios_version; then
+		AZURE_VMSIZE=$(wget -q -O- --header 'Metadata: true' 'http://169.254.169.254/metadata/instance/compute/vmSize?api-version=2017-04-02')
+		case "$AZURE_VMSIZE" in
 			Standard_A0) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 5' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			Standard_A1) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 3' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			Standard_A2) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 2' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
