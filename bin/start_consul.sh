@@ -51,7 +51,7 @@ if [ "$CONSUL_DNS_PORT" -le 1024 ]; then # Joyent Triton (Illumos)
 		/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 	else
 		# Assign a linux capability to the Consul binary that allows to bind to low ports
-		setcap 'cap_net_bind_service=+ep' /bin/consul
+		setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul
 	fi
 elif [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
 		# Assign a privilege spec to the process that allows to chown files,
