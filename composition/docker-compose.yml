@@ -18,9 +18,6 @@ services:
       - 8301
       - 8302
       - 8501
-# Use the IP of your first docker container
-#    dns:
-#      - 172.18.0.2 
     env_file: _env
     environment:
       - CONSUL_BOOTSTRAP_HOST
