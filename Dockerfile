@@ -18,7 +18,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.description="Alpine based Consul image"
 
 RUN	apk -q --no-cache upgrade &&\
-	apk -q add --no-cache ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
+	apk -q --no-cache add ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
 	gpg --keyserver pgp.mit.edu --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -30,10 +30,11 @@ RUN	apk -q --no-cache upgrade &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
 # Create Consul user
-	adduser -H -h /tmp -D -g 'Consul user' -s /dev/null consul &&\
+	addgroup -S consul &&\
+	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
 # Cleanup
-	apk -q del --purge ca-certificates gnupg wget &&\
+	apk -q --no-cache del --purge ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
 
 # Copy binaries. bin directory contains startup script
@@ -69,6 +70,8 @@ ONBUILD RUN chown -R consul: /etc/consul &&\
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul.sh"]
+
+HEALTHCHECK --start-period=300s CMD consul operator raft list-peers | grep -q leader
 
 # Serf LAN and WAN (WAN is used only by Consul servers) are used for gossip between
 # Consul agents. LAN is used within the datacenter and WAN between Consul servers
