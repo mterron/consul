@@ -17,7 +17,6 @@
 
 "acl_datacenter": "",
 "acl_default_policy": "allow",
-"acl_master_token": "",
 "acl_down_policy": "extend-cache",
 
 "addresses": {
