@@ -7,7 +7,7 @@ ARG VCS_REF
 
 # Set environment variables
 ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=1.0.0 \
+	CONSUL_VERSION=1.0.1 \
 	HASHICORP_PGP_KEY=51852D87348FFC4C
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
