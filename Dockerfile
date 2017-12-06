@@ -4,11 +4,11 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 ARG BUILD_DATE
 ARG VCS_REF
+ARG CONSUL_VERSION=1.0.1
+ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
 # Set environment variables
-ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin \
-	CONSUL_VERSION=1.0.1 \
-	HASHICORP_PGP_KEY=51852D87348FFC4C
+ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
