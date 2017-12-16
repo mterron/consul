@@ -10,10 +10,11 @@ loge() {
 # Add Consul FQDN to hosts file for convenience
 printf "$(hostname -i)\t$(hostname).node.${CONSUL_DNS:-consul}\n" >> /etc/hosts
 
-# Performance configuration
-if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
+# Performance configuration for Cloud providers
+# See https://www.consul.io/docs/guides/performance.html
+if [ ! "${CONSUL_ENVIRONMENT:-non-prod}" = 'prod' ]; then
 	# Amazon EC2
-	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid)" = 'ec2' ]; then
+	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid | tr '[:lower:]' '[:upper:]')" = 'EC2' ]; then
 		EC2_INSTANCE-TYPE=$(wget -q -O- 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')
 		case "$EC2_INSTANCE-TYPE" in
 			nano)   su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 6' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
@@ -23,7 +24,7 @@ if [ ! "${CONSUL_ENVIRONMENT:-dev}" = 'prod' ]; then
 			*large) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 1' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 		esac
 	# GCE
-	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq "Google" /sys/class/dmi/id/bios_vendor; then
+	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq 'Google' /sys/class/dmi/id/bios_vendor; then
 		GCE_MACHINE-TYPE=$(wget -q -O- 'http://metadata.google.internal/computeMetadata/v1/instance/machine-type')
 		case "$GCE_MACHINE-TYPE" in
 			f1-micro) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 5' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
