@@ -4,7 +4,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 ARG BUILD_DATE
 ARG VCS_REF
-ARG CONSUL_VERSION=1.0.1
+ARG CONSUL_VERSION=1.0.2
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
 # Set environment variables
