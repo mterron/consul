@@ -43,21 +43,23 @@ if [ ! "${CONSUL_ENVIRONMENT:-non-prod}" = 'prod' ]; then
 	fi
 fi
 
+# Detect if we are running on Joyent Triton (Illumos)
+# Assign a privilege spec to the process that allows it to chown files,
+# access high resolution timers and change its process id
+if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
+	/native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
+fi
+
 # Detect if Consul needs to bind to low ports for DNS
-CONSUL_DNS_PORT=$(jq '.ports.dns' /etc/consul/consul.json)
-if [ "$CONSUL_DNS_PORT" -le 1024 ]; then # Joyent Triton (Illumos)
-	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-		# Assign a privilege spec to the process that allows to bind to low ports, chown files,
-		# access high resolution timers and change its process id
-		/native/usr/bin/ppriv -s LI+NET_PRIVADDR,FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
+CONSUL_LOWEST_PORT=$(jq '.ports|map(numbers)|min' /etc/consul/consul.json)
+if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then 
+	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
+		# Assign a privilege spec to the process that allows it to bind to low ports
+		/native/usr/bin/ppriv -s LI+NET_PRIVADDR $$
 	else
-		# Assign a linux capability to the Consul binary that allows to bind to low ports
+		# Assign a linux capability to the Consul binary that allows it to bind to low ports
 		setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul
 	fi
-elif [ "$(uname -v)" = 'BrandZ virtual linux' ]; then
-		# Assign a privilege spec to the process that allows to chown files,
-		# access high resolution timers and change its process id
-		/native/usr/bin/ppriv -s LI+FILE_CHOWN,PROC_CLOCK_HIGHRES,PROC_SETID $$
 fi
 
 if [ -e /data/raft/raft.db ]; then
