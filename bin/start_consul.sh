@@ -12,7 +12,9 @@ printf '%s\t%s\n' "$(hostname -i)" "$(hostname).node.${CONSUL_DNS:-consul}" >> /
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
-if [ ! "${CONSUL_ENVIRONMENT:-non-prod}" = 'prod' ]; then
+if [ "${CONSUL_ENVIRONMENT:-non-prod}" = 'prod' ]; then
+	su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 1' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+else
 	# Amazon EC2
 	if [ -f /sys/hypervisor/uuid ] && [ "$(head -c 3 /sys/hypervisor/uuid | tr '[:lower:]' '[:upper:]')" = 'EC2' ]; then
 		EC2_INSTANCE-TYPE="$(wget -q -O- 'http://169.254.169.254/latest/meta-data/instance-type' | awk -F. '{print $2}')"
@@ -40,6 +42,8 @@ if [ ! "${CONSUL_ENVIRONMENT:-non-prod}" = 'prod' ]; then
 			Standard_A2) su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 2' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 			*)           su -s/bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.performance.raft_multiplier = 1' > /etc/consul/consul.json; } < /etc/consul/consul.json" ;;
 		esac
+	else
+		loge "Can't determine performance settings. Using Consul default settings"
 	fi
 fi
 
@@ -52,7 +56,7 @@ fi
 
 # Detect if Consul needs to bind to low ports
 CONSUL_LOWEST_PORT=$(jq '.ports|map(numbers)|min' /etc/consul/consul.json)
-if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then 
+if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
 	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
 		# Assign a privilege spec to the process that allows it to bind to low ports
 		/native/usr/bin/ppriv -s LI+NET_PRIVADDR $$
