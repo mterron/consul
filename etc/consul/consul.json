@@ -15,7 +15,6 @@
 "verify_server_hostname": true,
 "tls_prefer_server_cipher_suites": true,
 
-"acl_datacenter": "",
 "acl_default_policy": "allow",
 "acl_down_policy": "extend-cache",
 
@@ -30,9 +29,5 @@
 
 "dns_config": {
 	"enable_truncate": true
-},
-
-"performance": {
-	"raft_multiplier": 1
 }
 }

@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
+LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>"
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -78,3 +78,5 @@ HEALTHCHECK --start-period=300s CMD consul operator raft list-peers | grep -q le
 # HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
 # use to interact with Consul.
 EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
+
+STOPSIGNAL SIGINT
