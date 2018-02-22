@@ -12,6 +12,9 @@ set_consul_performance() {
 	PERFORMANCE=$1 su-exec consul sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
+# Expand Consul data directory variable
+export DATA_DIR="${DATA_DIR:-/data}"
+
 # Add Consul FQDN to hosts file for convenience
 printf '%s\t%s\n' "$(hostname -i)" "$(hostname).node.${CONSUL_DNS:-consul}" >> /etc/hosts
 
@@ -71,17 +74,20 @@ if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
 	fi
 fi
 
-if [ -e /data/raft/raft.db ]; then # This is a restart
+if [ -e "$DATA_DIR/raft/raft.db" ]; then # This is a restart
 	consul validate /etc/consul/consul.json || exit 1
 	log 'Starting Consul'
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
 
-	exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
+	exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
 else # This is the first start
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
+		# Create Consul's data directory
+		mkdir -p -m 770 "$DATA_DIR"
+		chown -R consul: "$DATA_DIR"
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
@@ -100,7 +106,7 @@ else # This is the first start
 		fi
 
 		consul validate /etc/consul/consul.json || exit 1
-		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:-consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 	else
 		printf 'Consul agent configuration\nUsage\n-----\n' >&2
 		printf 'You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n' >&2

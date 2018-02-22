@@ -1,6 +1,4 @@
 {
-"data_dir": "/data",
-
 "disable_update_check": true,
 "disable_remote_exec": true,
 "log_level": "warn",

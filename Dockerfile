@@ -42,11 +42,9 @@ COPY bin/* /usr/local/bin/
 # Copy /etc (Consul config and certificates)
 COPY etc/ /etc
 
-RUN	mkdir -m 770 /data &&\
-	chmod 770 /etc/consul &&\
+RUN	chmod 770 /etc/consul &&\
 	chmod 660 /etc/consul/consul.json &&\
 # Fix permissions
-	chown -R consul: /data &&\
 	chown -R consul: /etc/consul &&\
 # Add CA to system trusted store
 	mkdir -p /etc/ssl/certs/ &&\
