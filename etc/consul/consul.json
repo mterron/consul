@@ -21,7 +21,7 @@
 	"dns": 53,
 	"https": 8501
 },
-"recursors": "9.9.9.9",
+"recursors": [ "9.9.9.9" ],
 "dns_config": {
 	"enable_truncate": true
 },
