@@ -11,5 +11,5 @@ CONSUL_CLUSTER_SIZE=3
 #CONSUL_BOOTSTRAP_HOST=
 #CONSUL_ACL_DC=
 # If CONSUL_ENVIRONMENT is prod, Consul will use high performance settings: { "performance": {"raft_multiplier": 1} }
-# This container detects EC2 instance types and sets up performance accordingly if you do not set CONSUL_ENVIRONMENT to prod
-CONSUL_ENVIRONMENT=prod
+# This container detects cloud instance types and sets up performance accordingly if you do set CONSUL_PERFORMANCE to 'auto'
+CONSUL_PERFORMANCE=

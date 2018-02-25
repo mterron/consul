@@ -3,15 +3,12 @@
 "disable_remote_exec": true,
 "log_level": "warn",
 
-"raft_protocol": 3,
-
 "cert_file": "/etc/tls/consul.service.consul.pem",
 "key_file": "/etc/tls/consul.service.consul.key",
 "ca_file": "/etc/tls/ca.pem",
 "verify_incoming": true,
 "verify_outgoing": true,
 "verify_server_hostname": true,
-"tls_prefer_server_cipher_suites": true,
 
 "acl_default_policy": "allow",
 "acl_down_policy": "extend-cache",
@@ -24,8 +21,11 @@
 	"dns": 53,
 	"https": 8501
 },
-
+"recursors": "9.9.9.9",
 "dns_config": {
 	"enable_truncate": true
+},
+"limits": {
+	"rpc_rate": 1000
 }
 }
