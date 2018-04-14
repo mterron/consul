@@ -9,11 +9,11 @@ loge() {
 }
 
 set_consul_performance() {
-	PERFORMANCE=$1 su-exec consul: sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
+	PERFORMANCE=$1 su -s /bin/sh consul -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
 # Expand Consul data directory variable
-export DATA_DIR="${DATA_DIR:=/data}"
+export CONSUL_DATA_DIR="${CONSUL_DATA_DIR:=/data}"
 
 # Add Consul FQDN to hosts file for convenience
 printf '%s\t%s\n' "$(hostname -i)" "$(hostname).node.${CONSUL_DNS:-consul}" >> /etc/hosts
@@ -74,7 +74,7 @@ if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
 	fi
 fi
 
-if [ -e "$DATA_DIR/raft/raft.db" ]; then # This is a restart
+if [ -e "$CONSUL_DATA_DIR/raft/raft.db" ]; then # This is a restart
 # Bug in 1.0.6 fails if the key data_dir is not included
 #	consul validate -quiet /etc/consul/consul.json || exit 1
 	log 'Starting Consul'
@@ -82,24 +82,24 @@ if [ -e "$DATA_DIR/raft/raft.db" ]; then # This is a restart
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
 
-	exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
+	exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$CONSUL_DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
 
 else # This is the first start
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
 		log 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
 		# Create Consul's data directory
-		mkdir -p -m 770 "$DATA_DIR"
-		chown -R consul: "$DATA_DIR"
+		mkdir -p -m 770 "$CONSUL_DATA_DIR"
+		chown -R consul: "$CONSUL_DATA_DIR"
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
+		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 		# Add ACL tokens to the config file (DEPRECATED)
-#		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC | .acl_agent_master_token = env.CONSUL_ACL_AGENT_MASTER_TOKEN | .acl_agent_token = env.CONSUL_ACL_AGENT_TOKEN | .acl_token = env.CONSUL_ACL_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json"
-		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+#		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_agent_master_token = env.CONSUL_ACL_AGENT_MASTER_TOKEN | .acl_agent_token = env.CONSUL_ACL_AGENT_TOKEN | .acl_token = env.CONSUL_ACL_TOKEN' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
@@ -111,7 +111,7 @@ else # This is the first start
 
 # Bug in 1.0.6 fails if the key data_dir is not included
 #		consul validate /etc/consul/consul.json || exit 1
-		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir="$CONSUL_DATA_DIR" -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 	else
 		printf 'Consul agent configuration\nUsage\n-----\n' >&2
 		printf 'You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n' >&2
