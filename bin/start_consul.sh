@@ -3,18 +3,18 @@
 log() {
 	printf '%s\n' "$@"|awk '{print strftime("%FT%T%z",systime()),"[INFO] start_consul.sh:",$0}'
 }
-
-loge() {
-	printf '%s\n' "$@"|awk '{print strftime("%FT%T%z",systime()),"[ERROR] start_consul.sh:",$0}' >&2
+logd() {
+	if [ ${DEBUG:-} ]; then
+		printf '%s\n' "$@"|awk '{print strftime("%FT%T%z",systime()),"[DEBUG] start_consul.sh:",$0}'
+	fi
 }
 
 set_consul_performance() {
 	PERFORMANCE=$1 su -s /bin/sh consul -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
-
 # Add Consul FQDN to hosts file for convenience
-printf '%s\t%s\n' "$(hostname -i)" "$(hostname).node.${CONSUL_DNS:-consul}" >> /etc/hosts
+#printf '%s\t%s\n' "$(hostname -i)" "$(hostname).node.${CONSUL_DOMAIN:-consul}" >> /etc/hosts
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
@@ -50,7 +50,7 @@ elif [ "$CONSUL_PERFORMANCE" = 'auto' ]; then
 		esac
 	fi
 else
-	loge "Can't determine performance settings. Using Consul default settings"
+	log "Can't determine performance settings. Using Consul default settings"
 fi
 
 # Detect if we are running on Joyent Triton (Illumos)
@@ -75,7 +75,7 @@ fi
 if [ -e "/data/raft/raft.db" ]; then # This is a restart
 # Bug in 1.0.6 fails if the key data_dir is not included
 #	consul validate -quiet /etc/consul/consul.json || exit 1
-	log 'Starting Consul'
+	logd 'Starting Consul'
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
@@ -84,7 +84,7 @@ if [ -e "/data/raft/raft.db" ]; then # This is a restart
 
 else # This is the first start
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
-		log 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
+		logd 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
 		# Create Consul's data directory
 		mkdir -p -m 775 /data
 		chown -R consul: /data
@@ -98,10 +98,10 @@ else # This is the first start
 
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
-			log "Bootstrap host is $(hostname -s)"
-			log "Please remember to bootstrap the ACL system by running: curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https' /etc/consul/consul.json)/v1/acl/bootstrap'"
+			logd "Bootstrap host is $(hostname -s)"
+			logd "Please remember to bootstrap the ACL system by running: curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https' /etc/consul/consul.json)/v1/acl/bootstrap'"
 		else
-			log "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
+			logd "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
 		fi
 
 # Bug in 1.0.6 fails if the key data_dir is not included
