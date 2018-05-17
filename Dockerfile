@@ -25,6 +25,7 @@ RUN	apk -q --no-cache add ca-certificates jq gnupg libcap su-exec tini tzdata wg
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_SHA256SUMS.sig &&\
 # Check integrity and installs Consul
+	gpg --receive-keys $HASHICORP_PGP_KEY &&\
 	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
@@ -78,3 +79,5 @@ HEALTHCHECK --start-period=300s CMD consul operator raft list-peers | grep -q le
 EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
 
 STOPSIGNAL SIGINT
+
+COPY Dockerfile /etc/
