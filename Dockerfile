@@ -17,7 +17,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$CONSUL_VERSION \
       org.label-schema.description="Alpine based Consul image"
 
-RUN	apk -q --no-cache add ca-certificates jq gnupg libcap su-exec tini tzdata wget &&\
+RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
 	gpg --keyserver pgp.mit.edu --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
