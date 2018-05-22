@@ -20,6 +20,11 @@ shift $(( OPTIND - 1 ))
 # give the docker remote api more time before timeout
 export COMPOSE_HTTP_TIMEOUT=300
 
+echo -e "   ___                      _
+  / __\___  _ __  ___ _   _| |
+ / /  / _ \| '_ \/ __| | | | |
+/ /__| (_) | | | \__ \ |_| | |
+\____/\___/|_| |_|___/\__,_|_|"
 echo -e "Consul composition"
 printf "%s\n" "Starting a ${COMPOSE_PROJECT_NAME} Consul cluster"
 printf "\n* Pulling the most recent images\n"
@@ -71,7 +76,7 @@ CONSUL_TOKEN=$(docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh 
 echo -e "Consul ACL token: \e[38;5;198m${CONSUL_TOKEN}\e[0m"
 
 # Install Agent token
-printf "%s" '> Installing Consul agent token ...'
+printf "%s" ' > Installing Consul agent token ...'
 for ((i=1; i <= CONSUL_CLUSTER_SIZE ; i++)); do
 	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN=$CONSUL_TOKEN -e AGENT_TOKEN=$CONSUL_TOKEN --index=$i -w /tmp consul sh -c 'curl -s --header "X-Consul-Token: $CONSUL_TOKEN" --data "{\"Token\": \"$CONSUL_TOKEN\"}" -XPUT http://127.0.0.1:8500/v1/agent/token/acl_agent_token'
 done
