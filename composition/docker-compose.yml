@@ -1,4 +1,4 @@
-version: "2.3"
+version: "2.4"
 # Start with a single host which will bootstrap the cluster. Once the
 # cluster is bootstrapped we can set BOOTSTRAP_HOST and scale up
 # more Consul instances.
@@ -11,6 +11,10 @@ services:
     image: mterron/consul
     restart: always
     mem_limit: 128m
+#    scale: 3
+#    deploy:
+#      mode: replicated
+#      replicas: 3
     ports:
       - 8600
       - 8300
@@ -28,3 +32,5 @@ services:
        - SETUID
        - SETGID
        - CHOWN
+#    extra_hosts:
+#       - "consul.service.consul:10.0.1.130"
