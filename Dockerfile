@@ -66,7 +66,7 @@ ONBUILD RUN chown -R consul: /etc/consul &&\
 
 
 ENTRYPOINT ["tini", "-g", "--"]
-CMD ["start_consul.sh"]
+CMD ["start_consul"]
 
 HEALTHCHECK --start-period=300s CMD consul operator raft list-peers | grep -q leader
 
