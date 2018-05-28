@@ -28,7 +28,7 @@ echo -e "   ___                      _
 echo -e "Consul composition"
 printf "%s\n" "Starting a ${COMPOSE_PROJECT_NAME} Consul cluster"
 printf "\n* Pulling the most recent images\n"
-#docker-compose pull
+docker-compose pull
 printf "\n* Starting initial container:\n"
 docker-compose up -d --remove-orphans --force-recreate
 
