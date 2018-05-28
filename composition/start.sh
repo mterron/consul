@@ -27,7 +27,7 @@ printf '   ___                      _
 \____/\___/|_| |_|___/\__,_|_|\n'
 printf 'Consul composition\n'
 printf '* Pulling the most recent images\n'
-#docker-compose pull
+docker-compose pull
 printf '\n* Starting initial container:\n'
 docker-compose up -d --remove-orphans --force-recreate
 
