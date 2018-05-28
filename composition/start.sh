@@ -49,8 +49,8 @@ do
         exit 1
     fi
     printf '.'
-    sleep 3
-    TIMER=$(( TIMER + 3))
+    sleep 1
+    TIMER=$(( TIMER + 1))
 done
 printf "\e[0;32m done\e[0m\n"
 
@@ -64,7 +64,7 @@ printf ' > Waiting for Consul cluster quorum acquisition and stabilisation ...'
 until (docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh -c 'consul operator raft list-peers 2>/dev/null|grep -q leader')
 do
 	printf '.'
-	sleep 5
+	sleep 1
 done
 printf "\e[0;32m done\e[0m\n"
 
