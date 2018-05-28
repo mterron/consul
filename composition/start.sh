@@ -40,12 +40,16 @@ export CONSUL_BOOTSTRAP_HOST="$BOOTSTRAP_UI_IP"
 # Wait for the bootstrap instance
 printf ' > Waiting for the bootstrap instance ...'
 TIMER=0
+START_TIMEOUT=300
 until (docker-compose -p "$COMPOSE_PROJECT_NAME" exec consul su-exec consul: test -e /data/node-id)
 do
 	IS_RESTARTING=$(docker ps --quiet --filter 'status=restarting' --filter "name=${CONSUL_BOOTSTRAP_HOST}" | wc -l)
 	if [ "$IS_RESTARTING" -eq 1 ]; then
+		printf '\e[5;31;40;1mERROR, Consul is restarting. Check the Docker log below:\e[m\n'
+        docker logs "$COMPOSE_PROJECT_NAME"_consul_1
 		exit 1
-    elif [ $TIMER -gt 180 ]; then
+    elif [ $TIMER -gt $START_TIMEOUT ]; then
+		printf '\e[5;31;40;1mERROR, Vault is taking too long to start. If that is expected please modify $START_TIMEOUT.\e[m\n'
         exit 1
     fi
     printf '.'
