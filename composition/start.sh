@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # check for prereqs
 command -v docker >/dev/null 2>&1 || { printf 'Docker is required, but does not appear to be installed.'; exit; }
 test -e _env || { printf '_env file not found'; exit; }
@@ -7,12 +7,13 @@ clear
 # default values which can be overriden by -f or -p flags
 export COMPOSE_FILE=
 export COMPOSE_PROJECT_NAME=demo
-export $(grep CONSUL_CLUSTER_SIZE _env)
+export "$(grep CONSUL_CLUSTER_SIZE _env)"
 
 while getopts "f:p:" optchar; do
 	case "${optchar}" in
 		f) export COMPOSE_FILE=${OPTARG} ;;
 		p) export COMPOSE_PROJECT_NAME=${OPTARG} ;;
+		*) printf '%s\n' "Unknown option: ${OPTARG}"&&exit 1;;
 	esac
 done
 shift $(( OPTIND - 1 ))
@@ -80,12 +81,11 @@ printf "Consul ACL token: \e[38;5;198m${CONSUL_TOKEN}\e[0m\n"
 
 # Install Agent token
 printf ' > Installing Consul agent token ...'
-for ((i=1; i <= CONSUL_CLUSTER_SIZE ; i++)); do
-	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN=$CONSUL_TOKEN -e AGENT_TOKEN=$CONSUL_TOKEN --index=$i -w /tmp consul sh -c 'curl -s --header "X-Consul-Token: $CONSUL_TOKEN" --data "{\"Token\": \"$CONSUL_TOKEN\"}" -XPUT http://127.0.0.1:8500/v1/agent/token/acl_agent_token'
+for i in $(seq $CONSUL_CLUSTER_SIZE); do
+	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN="$CONSUL_TOKEN" -e AGENT_TOKEN="$CONSUL_TOKEN" --index=$i -w /tmp consul sh -c 'curl -s --header "X-Consul-Token: $CONSUL_TOKEN" --data "{\"Token\": \"$CONSUL_TOKEN\"}" -XPUT http://127.0.0.1:8500/v1/agent/token/acl_agent_token'
 done
 printf '\e[0;32m done\e[0m\n'
 
 printf '\n%s\n' "Consul Dashboard: https://${BOOTSTRAP_UI_IP}:${BOOTSTRAP_UI_PORT:-8501}/ui/"
 # Open browser pointing to the Consul UI
 command -v open >/dev/null 2>&1 && open "https://$BOOTSTRAP_UI_IP:${BOOTSTRAP_UI_PORT:-8501}/ui/"
-
