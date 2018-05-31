@@ -57,8 +57,7 @@ RUN	chmod 770 /etc/consul &&\
 ONBUILD COPY consul.json /etc/consul/consul.json
 ONBUILD COPY tls/ etc/tls/
 # Fix file permissions
-ONBUILD RUN chown -R consul: /etc/consul &&\
-			chmod 770 /etc/consul &&\
+ONBUILD RUN chown consul:consul /etc/consul/consul.json &&\
 			chmod 660 /etc/consul/consul.json &&\
 # Add CA to system trusted store
 			cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
