@@ -39,17 +39,19 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 # Copy binaries. bin directory contains startup script
 COPY bin/* /usr/local/bin/
 
-# Copy /etc (Consul config and certificates)
-COPY --chown=consul:consul etc/ /etc
+# Copy Consul config
+COPY --chown=consul:consul consul.json /etc/consul/
+# Copy certificates
+COPY tls/ /etc/tls
 
 # Add CA to system trusted store
 RUN	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 
-
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
-# and your own certificates
+# and your own certificates matching that domain
 ONBUILD COPY --chown=consul:consul consul.json /etc/consul/consul.json
-ONBUILD COPY tls/ etc/tls/
+# Copy certificates
+ONBUILD COPY tls/ /etc/
 # Add CA to system trusted store
 ONBUILD RUN cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 
