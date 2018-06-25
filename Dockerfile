@@ -7,9 +7,6 @@ ARG VCS_REF
 ARG CONSUL_VERSION=1.1.0
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
-# Set environment variables
-ENV PATH=$PATH:/native/usr/bin:/native/usr/sbin:/native/sbin:/native/bin:/bin
-
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
       org.label-schema.vcs-ref=$VCS_REF \
