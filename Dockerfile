@@ -15,7 +15,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.description="Alpine based Consul image"
 
 RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
-	gpg --keyserver pgp.mit.edu --recv-keys "$HASHICORP_PGP_KEY" &&\
+	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
@@ -29,6 +29,9 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 	addgroup -S consul &&\
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
+# Create Consul user
+	mkdir -p -m 770 /data &&\
+	chown consul:consul /data &&\
 # Cleanup
 	apk -q --no-cache del --purge ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
