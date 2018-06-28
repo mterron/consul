@@ -32,5 +32,3 @@ services:
        - SETUID
        - SETGID
        - CHOWN
-#    extra_hosts:
-#       - "consul.service.consul:10.0.1.130"
