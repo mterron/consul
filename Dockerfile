@@ -29,9 +29,6 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 	addgroup -S consul &&\
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
 	adduser root consul &&\
-# Create Consul user
-	mkdir -p -m 770 /data &&\
-	chown consul:consul /data &&\
 # Cleanup
 	apk -q --no-cache del --purge ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
@@ -42,7 +39,7 @@ COPY bin/* /usr/local/bin/
 # Copy Consul config
 COPY --chown=consul:consul consul.json /etc/consul/
 # Copy certificates
-COPY tls/ /etc/tls
+COPY tls/* /etc/tls/
 
 # Add CA to system trusted store
 RUN	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
@@ -51,7 +48,7 @@ RUN	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 # and your own certificates matching that domain
 ONBUILD COPY --chown=consul:consul consul.json /etc/consul/consul.json
 # Copy certificates
-ONBUILD COPY tls/ /etc/
+ONBUILD COPY tls/* /etc/tls/
 # Add CA to system trusted store
 ONBUILD RUN cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 
