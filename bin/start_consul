@@ -73,8 +73,6 @@ if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
 fi
 
 if [ -e "/data/raft/raft.db" ]; then # This is a restart
-# Bug in 1.0.6 fails if the key data_dir is not included
-#	consul validate -quiet /etc/consul/consul.json || exit 1
 	logd 'Starting Consul'
 	unset CONSUL_ENCRYPT_TOKEN
 	unset CONSUL_BOOTSTRAP_HOST
@@ -87,7 +85,7 @@ else # This is the first start
 		logd 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
 		# Create Consul's data directory
 		mkdir -p -m 775 /data
-		chown -R consul: /data
+		chown -R consul:consul /data
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
