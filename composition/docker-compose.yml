@@ -16,11 +16,15 @@ services:
 #      mode: replicated
 #      replicas: 3
     ports:
-      - 8600
-      - 8300
-      - 8301
-      - 8302
-      - 8501
+       - 8300
+       - 8301
+       - "8301/udp"
+       - 8302
+       - "8302/udp"
+       - 8500
+       - 8501
+       - 8600
+       - "8600/udp"
     env_file: _env
     environment:
        - CONSUL_BOOTSTRAP_HOST
