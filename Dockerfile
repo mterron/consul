@@ -28,6 +28,8 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 # Create Consul user
 	addgroup -S consul &&\
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
+# Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
+	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	adduser root consul &&\
 # Cleanup
 	apk -q --no-cache del --purge ca-certificates gnupg wget &&\

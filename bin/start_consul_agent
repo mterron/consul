@@ -62,14 +62,9 @@ fi
 
 # Detect if Consul needs to bind to low ports
 CONSUL_LOWEST_PORT=$(jq '.ports|map(numbers)|min' /etc/consul/consul.json)
-if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
-	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
+if [ "$CONSUL_LOWEST_PORT" -le 1024 ] && [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
 		# Assign a privilege spec to the process that allows it to bind to low ports
 		/native/usr/bin/ppriv -s LI+NET_PRIVADDR $$
-	else
-		# Assign a linux capability to the Consul binary that allows it to bind to low ports
-		setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul
-	fi
 fi
 
 if [ -e "/data/raft/raft.db" ]; then # This is a restart

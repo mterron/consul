@@ -62,14 +62,9 @@ fi
 
 # Detect if Consul needs to bind to low ports
 CONSUL_LOWEST_PORT=$(jq '.ports|map(numbers)|min' /etc/consul/consul.json)
-if [ "$CONSUL_LOWEST_PORT" -le 1024 ]; then
-	if [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
+if [ "$CONSUL_LOWEST_PORT" -le 1024 ] && [ "$(uname -v)" = 'BrandZ virtual linux' ]; then # Joyent Triton (Illumos)
 		# Assign a privilege spec to the process that allows it to bind to low ports
 		/native/usr/bin/ppriv -s LI+NET_PRIVADDR $$
-	else
-		# Assign a linux capability to the Consul binary that allows it to bind to low ports
-		setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul
-	fi
 fi
 
 if [ -e "/data/raft/raft.db" ]; then # This is a restart
@@ -102,8 +97,6 @@ else # This is the first start
 			logd "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
 		fi
 
-# Bug in 1.0.6 fails if the key data_dir is not included
-#		consul validate /etc/consul/consul.json || exit 1
 		exec -a consul su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join=consul -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 	else
 		printf 'Consul agent configuration\nUsage\n-----\n' >&2
