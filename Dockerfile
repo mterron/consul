@@ -14,7 +14,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$CONSUL_VERSION \
       org.label-schema.description="Alpine based Consul image"
 
-RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
+RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
 	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -25,6 +25,7 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
+	strip /usr/local/bin/consul &&\
 # Create Consul user
 	addgroup -S consul &&\
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
@@ -32,7 +33,7 @@ RUN	apk -q --no-cache add ca-certificates curl gnupg jq libcap su-exec tini tzda
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	adduser root consul &&\
 # Cleanup
-	apk -q --no-cache del --purge ca-certificates gnupg wget &&\
+	apk -q --no-cache del --purge binutils ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
 
 # Copy binaries. bin directory contains startup script
