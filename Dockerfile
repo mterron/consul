@@ -25,7 +25,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	gpg --batch --verify consul_${CONSUL_VERSION}_SHA256SUMS.sig consul_${CONSUL_VERSION}_SHA256SUMS &&\
 	grep "consul_${CONSUL_VERSION}_linux_amd64.zip$" consul_${CONSUL_VERSION}_SHA256SUMS | sha256sum -c &&\
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
-	strip /usr/local/bin/consul &&\
+	strip --strip-debug /usr/local/bin/consul &&\
 # Create Consul user
 	addgroup -S consul &&\
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
