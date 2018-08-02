@@ -13,6 +13,13 @@ set_consul_performance() {
 	PERFORMANCE=$1 su -s /bin/sh consul -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
+# Add the Consul CA to the trusted list
+if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ]; then
+	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
+	touch /etc/ssl/certs/ca-consul.done
+fi
+chown consul:consul /etc/tls/*
+
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
 if [ "${CONSUL_PERFORMANCE:=default}" = 'max' ]; then

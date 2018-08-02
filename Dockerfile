@@ -41,8 +41,6 @@ COPY bin/* /usr/local/bin/
 
 # Copy Consul config
 COPY --chown=consul:consul consul.json /etc/consul/
-# Copy certificates
-COPY tls/* /etc/tls/
 
 # Add CA to system trusted store
 RUN	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
