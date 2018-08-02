@@ -45,10 +45,6 @@ COPY --chown=consul:consul consul.json /etc/consul/
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates matching that domain
 ONBUILD COPY --chown=consul:consul consul.json /etc/consul/consul.json
-# Copy certificates
-ONBUILD COPY tls/* /etc/tls/
-# Add CA to system trusted store
-ONBUILD RUN cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul"]
