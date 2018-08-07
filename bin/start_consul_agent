@@ -10,7 +10,7 @@ logd() {
 }
 
 set_consul_performance() {
-	PERFORMANCE=$1 su -s /bin/sh consul -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
+	PERFORMANCE=$1 su-exec consul sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
 # Add the Consul CA to the trusted list
@@ -18,7 +18,7 @@ if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ]; then
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done
 fi
-chown consul:consul /etc/tls/*
+chown -f consul:consul /etc/tls/*
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
@@ -86,7 +86,7 @@ else
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
-		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+		su-exec consul sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 		exec -a consul su-exec consul:consul consul agent -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join=consul -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 fi
