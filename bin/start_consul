@@ -10,7 +10,7 @@ logd() {
 }
 
 set_consul_performance() {
-	PERFORMANCE=$1 su -s /bin/sh consul -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
+	PERFORMANCE=$1 su-exec consul sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
 # Add the Consul CA to the trusted list
@@ -91,7 +91,7 @@ else # This is the first start
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
-		su -s /bin/sh consul -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+		su-exec consul sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
