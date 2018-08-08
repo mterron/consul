@@ -31,9 +31,8 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
 # Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
-	adduser root consul &&\
 	mkdir -p -m 775 /data &&\
-	chown -R consul: /data &&\
+	chown -R consul:root /data &&\
 	mkdir -p -m 770 /etc/consul &&\
 	chown consul:root /etc/consul &&\
 # Cleanup
