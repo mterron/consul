@@ -13,12 +13,17 @@ set_consul_performance() {
 	PERFORMANCE=$1 sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
+USER=$(id -u)
+GROUP=$(id -g)
+logd "Running as UID: $USER"
+
 # Add the Consul CA to the trusted list
-if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ]; then
+if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ] && [ $USER -eq 1 ]; then
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done
 fi
-chown -f consul:consul /etc/tls/* 2>/dev/null
+chown -f $USER:$GROUP /etc/tls/* 2>/dev/null
+chown -f $USER:$GROUP /etc/consul/* 2>/dev/null
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
@@ -84,7 +89,7 @@ else # This is the first start
 		logd 'Starting Consul for the first time, using CONSUL_DC_NAME & BOOTSTRAP_HOST environment variables'
 		# Create Consul's data directory
 		mkdir -p -m 775 /data
-		chown -R consul:consul /data
+		chown -R $USER: /data
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then

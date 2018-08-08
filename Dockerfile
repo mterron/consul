@@ -34,6 +34,8 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	adduser root consul &&\
 	mkdir -p -m 775 /data &&\
 	chown -R consul: /data &&\
+	mkdir -p -m 770 /etc/consul &&\
+	chown consul:root /etc/consul &&\
 # Cleanup
 	apk -q --no-cache del --purge binutils ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
@@ -42,11 +44,11 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 COPY bin/* /usr/local/bin/
 
 # Copy Consul config
-COPY --chown=consul:consul consul.json /etc/consul/
+COPY --chown=consul consul.json /etc/consul/
 
 # On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
 # and your own certificates matching that domain
-ONBUILD COPY --chown=consul:consul consul.json /etc/consul/consul.json
+ONBUILD COPY --chown=consul consul.json /etc/consul/consul.json
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul"]
