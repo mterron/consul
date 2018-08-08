@@ -8,11 +8,11 @@ ARG CONSUL_VERSION=1.2.1
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.schema-version="1.0.0-rc.1" \
-      org.label-schema.version=$CONSUL_VERSION \
-      org.label-schema.description="Alpine based Consul image"
+	  org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
+	  org.label-schema.vcs-ref=$VCS_REF \
+	  org.label-schema.schema-version="1.0.0-rc.1" \
+	  org.label-schema.version=$CONSUL_VERSION \
+	  org.label-schema.description="Alpine based Consul image"
 
 RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
 	gpg --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys "$HASHICORP_PGP_KEY" &&\
@@ -33,7 +33,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	adduser root consul &&\
 	mkdir -p -m 775 /data &&\
-	chown -R consul:consul /data &&\
+	chown -R consul: /data &&\
 # Cleanup
 	apk -q --no-cache del --purge binutils ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg

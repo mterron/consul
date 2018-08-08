@@ -18,7 +18,7 @@ if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ]; then
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
 	touch /etc/ssl/certs/ca-consul.done
 fi
-chown -f consul:consul /etc/tls/*
+chown -f consul:consul /etc/tls/* 2>/dev/null
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html
