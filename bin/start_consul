@@ -10,7 +10,7 @@ logd() {
 }
 
 set_consul_performance() {
-	PERFORMANCE=$1 su-exec consul sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
+	PERFORMANCE=$1 sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
 
 # Add the Consul CA to the trusted list
@@ -77,7 +77,7 @@ if [ -e "/data/raft/raft.db" ]; then # This is a restart
 	unset CONSUL_BOOTSTRAP_HOST
 	unset CONSUL_CLUSTER_SIZE
 
-	exec -a consul su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
+	exec -a consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join="$CONSUL_DNS_NAME" -rejoin
 
 else # This is the first start
 	if [ "$CONSUL_DC_NAME" ] && [ "$CONSUL_ENCRYPT_TOKEN" ] && [ "$CONSUL_CLUSTER_SIZE" ] && [ "$CONSUL_DNS_NAME" ]; then
@@ -91,7 +91,7 @@ else # This is the first start
 			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
-		su-exec consul sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+		sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
@@ -101,7 +101,7 @@ else # This is the first start
 			logd "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
 		fi
 
-		exec -a consul su-exec consul:consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join=consul -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
+		exec -a consul consul agent -server -ui -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -bootstrap-expect="$CONSUL_CLUSTER_SIZE" -retry-join=consul -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 	else
 		printf 'Consul agent configuration\nUsage\n-----\n' >&2
 		printf 'You must always set the following environment variables to run this container:\nCONSUL_DC_NAME: The desired name for your Consul datacenter\n\n' >&2

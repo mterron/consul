@@ -15,7 +15,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.description="Alpine based Consul image"
 
 RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
-	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$HASHICORP_PGP_KEY" &&\
+	gpg --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
 	echo 'Download Consul integrity file' &&\
@@ -32,6 +32,8 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 # Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	adduser root consul &&\
+	mkdir -p -m 775 /data &&\
+	chown -R consul:consul /data &&\
 # Cleanup
 	apk -q --no-cache del --purge binutils ca-certificates gnupg wget &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
@@ -61,3 +63,5 @@ EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
 STOPSIGNAL SIGINT
 
 COPY Dockerfile /etc/
+
+USER consul

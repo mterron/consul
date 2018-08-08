@@ -41,7 +41,7 @@ export CONSUL_BOOTSTRAP_HOST="$BOOTSTRAP_UI_IP"
 printf ' > Waiting for the bootstrap instance ...'
 TIMER=0
 START_TIMEOUT=300
-until (docker-compose -p "$COMPOSE_PROJECT_NAME" exec consul su-exec consul: test -e /data/node-id)
+until (docker-compose -p "$COMPOSE_PROJECT_NAME" exec --user=consul consul test -e /data/node-id)
 do
 	IS_RESTARTING=$(docker ps --quiet --filter 'status=restarting' --filter "name=${CONSUL_BOOTSTRAP_HOST}" | wc -l)
 	if [ "$IS_RESTARTING" -eq 1 ]; then
