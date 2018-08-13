@@ -33,10 +33,10 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	mkdir -p -m 777 /data &&\
 	chown -R consul:root /data &&\
-	mkdir -p -m 770 /etc/consul &&\
+	mkdir -p -m 777 /etc/consul &&\
 	chown consul:root /etc/consul &&\
 # Cleanup
-	apk -q --no-cache del --purge binutils ca-certificates gnupg wget &&\
+	apk -q --no-cache del --purge binutils ca-certificates gnupg wget libcap &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
 
 # Copy binaries. bin directory contains startup script
