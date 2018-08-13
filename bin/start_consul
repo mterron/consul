@@ -28,7 +28,7 @@ fi
 
 if [ -e ${TEMPLATE_DIR:=/etc/consul}/consul.json.template ]; then
 	cp ${TEMPLATE_DIR}/consul.json.template /etc/consul/consul.json
-	chmod 660 ${TEMPLATE_DIR}/consul.json
+	chmod 660 /etc/consul/consul.json
 fi
 
 # Add the Consul CA to the trusted list
