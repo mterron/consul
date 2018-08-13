@@ -1,27 +1,16 @@
 version: "2.4"
-# Start with a single host which will bootstrap the cluster. Once the
-# cluster is bootstrapped we can set BOOTSTRAP_HOST and scale up
-# more Consul instances.
-# By using automatic bootstrapping via `-bootstrap-expect` and adding
-# the environment variable, we can avoid having to use links. The
-# environment variable is used once at bootstrap and then forever
-# discarded by that node.
 services:
   consul:
     image: mterron/consul
     read_only: true
     restart: always
     mem_limit: 128m
-#    scale: 3
-#    deploy:
-#      mode: replicated
-#      replicas: 3
     volumes:
       - /data
       - /etc/consul
       - /etc/ssl/certs
-      - ./tls:/etc/tls
-      - ./consul.json.template:/etc/consul/consul.json.template:ro
+      - ${PWD}/tls:/etc/tls
+      - ${PWD}/consul.json.template:/etc/consul/consul.json.template:ro
     tmpfs:
       - /tmp
       - /run
