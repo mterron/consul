@@ -12,10 +12,21 @@ logd() {
 set_consul_performance() {
 	PERFORMANCE=$1 sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"
 }
+###################################################################################################
 
 USER=$(id -u)
 GROUP=$(id -g)
-logd "Running as UID: $USER"
+logd "Running as $USER:$GROUP"
+
+if [ -e /etc/consul/consul.json ] && { [ ! -r /etc/consul/consul.json ] || [ ! -w /etc/consul/consul.json ]; }; then
+	printf "[ERR] Can't access Consul configuration file! (/etc/consul/consul.json)\n" >&2
+	exit 1
+fi
+
+if [ -e /etc/consul/consul.json.template ]; then
+	cp /etc/consul/consul.json.template /etc/consul/consul.json
+	chmod 660 /etc/consul/consul.json
+fi
 
 # Add the Consul CA to the trusted list
 if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ] && [ $USER -eq 1 ]; then
@@ -23,7 +34,6 @@ if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ] && [ $USER -
 	touch /etc/ssl/certs/ca-consul.done
 fi
 chown -f $USER:$GROUP /etc/tls/* 2>/dev/null
-chown -f $USER:$GROUP /etc/consul/* 2>/dev/null
 
 # Performance configuration for Cloud providers
 # See https://www.consul.io/docs/guides/performance.html

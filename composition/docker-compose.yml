@@ -21,6 +21,7 @@ services:
       - /etc/consul
       - /etc/ssl/certs
       - ./tls:/etc/tls
+      - ./consul.json.template:/etc/consul/consul.json.template:ro
     tmpfs:
       - /tmp
       - /run

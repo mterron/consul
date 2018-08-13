@@ -1,13 +1,13 @@
 FROM alpine:latest
-
-LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>"
+MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG CONSUL_VERSION=1.2.2
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
-LABEL org.label-schema.build-date=$BUILD_DATE \
+LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>" \
+	  org.label-schema.build-date=$BUILD_DATE \
 	  org.label-schema.vcs-url="https://github.com/mterron/consul.git" \
 	  org.label-schema.vcs-ref=$VCS_REF \
 	  org.label-schema.schema-version="1.0.0-rc.1" \
@@ -31,7 +31,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
 # Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
-	mkdir -p -m 775 /data &&\
+	mkdir -p -m 777 /data &&\
 	chown -R consul:root /data &&\
 	mkdir -p -m 770 /etc/consul &&\
 	chown consul:root /etc/consul &&\
@@ -42,12 +42,6 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 # Copy binaries. bin directory contains startup script
 COPY bin/* /usr/local/bin/
 
-# Copy Consul config
-COPY --chown=consul consul.json /etc/consul/
-
-# On build provide your own consul dns name on the environment variable CONSUL_DNS_NAME
-# and your own certificates matching that domain
-ONBUILD COPY --chown=consul consul.json /etc/consul/consul.json
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul"]
