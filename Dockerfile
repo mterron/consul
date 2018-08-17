@@ -30,10 +30,9 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	adduser -h /data -D -u 100000 -g 'Consul user' -s /dev/null consul &&\
 # Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
-	mkdir -p -m 777 /data &&\
-	chown -R consul:root /data &&\
-	mkdir -p -m 777 /etc/consul &&\
-	chown consul:root /etc/consul &&\
+	mkdir -p -m 777 /data /etc/consul &&\
+	chown consul:root /data /etc/consul &&\
+	chmod 6550 /sbin/su-exec &&\
 # Cleanup
 	apk -q --no-cache del --purge binutils ca-certificates gnupg wget libcap &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
