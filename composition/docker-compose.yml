@@ -21,7 +21,6 @@ services:
        - ALL
     cap_add:
        - NET_BIND_SERVICE
-       - SETFCAP
        - SETUID
        - SETGID
        - CHOWN

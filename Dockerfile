@@ -27,8 +27,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	unzip -q -o consul_${CONSUL_VERSION}_linux_amd64.zip -d /usr/local/bin &&\
 	strip --strip-debug /usr/local/bin/consul &&\
 # Create Consul user
-	addgroup -S consul &&\
-	adduser -H -h /tmp -D -S -G consul -g 'Consul user' -s /dev/null consul &&\
+	adduser -h /data -D -u 100000 -g 'Consul user' -s /dev/null consul &&\
 # Assign a linux capability to the Consul binary that allows it to bind to low ports in case it's needed
 	setcap 'cap_net_bind_service=+ep' /usr/local/bin/consul &&\
 	mkdir -p -m 777 /data &&\
