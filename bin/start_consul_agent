@@ -20,6 +20,7 @@ set_consul_performance() {
 USER=$(id -u)
 GROUP=$(id -g)
 logd "Running as $USER:$GROUP"
+mkdir -p -m 770 /run/consul
 
 if [ -e ${TEMPLATE_DIR:=/etc/consul}/consul.json.template ]; then
 	cp ${TEMPLATE_DIR}/consul.json.template /etc/consul/consul.json

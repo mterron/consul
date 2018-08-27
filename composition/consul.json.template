@@ -12,7 +12,11 @@
 "acl_down_policy": "extend-cache",
 "addresses": {
 	"dns": "0.0.0.0",
+	"http": "0.0.0.0 unix:///run/consul/consul.sock",
 	"https": "0.0.0.0"
+},
+"unix_sockets": {
+	"mode": "770"
 },
 "ports": {
 	"dns": 53,
