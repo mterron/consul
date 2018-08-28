@@ -73,8 +73,6 @@ elif [ "$CONSUL_PERFORMANCE" = 'auto' ]; then
 			*)            set_consul_performance 1 ;;
 		esac
 	fi
-else
-	log "Using Consul default performance settings"
 fi
 
 # Detect if we are running on Joyent Triton (Illumos)

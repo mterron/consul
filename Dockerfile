@@ -51,7 +51,7 @@ HEALTHCHECK --start-period=300s CMD consul operator raft list-peers | grep -q le
 # in all datacenters.
 # HTTPS, and DNS (both TCP and UDP) are the primary interfaces that applications
 # use to interact with Consul.
-EXPOSE 8301 8301/udp 8302 8302/udp 8501 53 53/udp 8600 8600/udp
+EXPOSE 8301 8301/udp 8302 8302/udp 8500 8501 53 53/udp 8600 8600/udp
 
 STOPSIGNAL SIGINT
 
