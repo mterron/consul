@@ -1,16 +1,7 @@
-#!/bin/ash
-SCRIPT_NAME=$(basename -- "$0")
-log() {
-    printf "[INFO] ${SCRIPT_NAME}: %s\n" "$@"
-}
-loge() {
-    printf "[ERR] ${SCRIPT_NAME}: %s\n" "$@" >&2
-}
-logd() {
-    if [ ${DEBUG:-} ]; then
-        printf "[DEBUG] ${SCRIPT_NAME}: %s\n" "$@"
-    fi
-}
+#!/bin/sh
+
+# Import log functions
+. /usr/local/lib/log
 
 set_consul_performance() {
 	PERFORMANCE=$1 sh -c "{ rm /etc/consul/consul.json;jq '.performance.raft_multiplier=(env.PERFORMANCE|tonumber)' >/etc/consul/consul.json; } < /etc/consul/consul.json"

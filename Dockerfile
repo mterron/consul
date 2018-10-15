@@ -39,7 +39,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 
 # Copy binaries. bin directory contains startup script
 COPY bin/* /usr/local/bin/
-
+COPY log /usr/local/lib/
 
 ENTRYPOINT ["tini", "-g", "--"]
 CMD ["start_consul"]
