@@ -1,4 +1,3 @@
-#!/bin/sh
 SCRIPT_NAME=$(basename -- "$0")
 log() {
     printf "[INFO] ${SCRIPT_NAME}: %s\n" "$@"
