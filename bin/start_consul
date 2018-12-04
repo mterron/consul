@@ -24,6 +24,9 @@ if [ ! -r /etc/consul/consul.json ] || [ ! -w /etc/consul/consul.json ]; then
 	exit 1
 fi
 
+#Set Consul primary datacenter
+
+
 # Add the Consul CA to the trusted list
 if [ ! -e /etc/ssl/certs/ca-consul.done ] && [ -e /etc/tls/ca.pem ] && [ $USER -eq 1 ]; then
 	cat /etc/tls/ca.pem >> /etc/ssl/certs/ca-certificates.crt &&\
@@ -56,6 +59,7 @@ elif [ "$CONSUL_PERFORMANCE" = 'auto' ]; then
 		esac
 	# MS Azure
 	elif [ -f /sys/class/dmi/id/bios_vendor ] && grep -iq 'Hyper-V UEFI' /sys/class/dmi/id/bios_version &&
+		sh -c "{ rm /etc/consul/consul.json; jq '.primary_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 		AZURE_VMSIZE="$(wget -q -O- --header 'Metadata: true' 'http://169.254.169.254/metadata/instance/compute/vmSize?api-version=2017-12-01')" ; then
 		case "${AZURE_VMSIZE}" in
 			Standard_A0*) set_consul_performance 5 ;;
@@ -97,15 +101,16 @@ else # This is the first start
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
-			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
+			log "Primary Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
-		sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+		sh -c "{ rm /etc/consul/consul.json; jq '.primary_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 	# Log Consul bootstrap host to the console
 		if [ "${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" = 127.0.0.1 ]; then
 			logd "Bootstrap host is $(hostname -s)"
-			logd "Please remember to bootstrap the ACL system by running: curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https' /etc/consul/consul.json)/v1/acl/bootstrap'"
+			logd 'Please remember to bootstrap the ACL system by running: consul acl bootstrap'
+			# curl --cert client_certificate.pem --key client_certificate.key --cacert ca.pem -XPUT 'https://${CONSUL_DNS_NAME:-consul.service.consul}:$(jq '.ports.https' /etc/consul/consul.json)/v1/acl/bootstrap'"
 		else
 			logd "Bootstrap host is ${CONSUL_BOOTSTRAP_HOST}"
 		fi

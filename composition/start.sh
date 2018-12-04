@@ -76,13 +76,13 @@ printf '\e[0;32m done\e[0m\n'
 printf '\n* Bootstrapping Consul ACL system\n'
 set -e
 
-CONSUL_TOKEN=$(docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh -c "curl -s -XPUT http://127.0.0.1:8500/v1/acl/bootstrap 2>/dev/null | jq -M -e -c -r '.ID' | tr -d '\000-\037'")
+CONSUL_TOKEN=$(docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh -c "consul acl bootstrap | awk '/SecretID:/{print $2}'")
 printf "Consul ACL token: \e[38;5;198m${CONSUL_TOKEN}\e[0m\n"
 
 # Install Agent token
 printf ' > Installing Consul agent token ...'
 for i in $(seq $CONSUL_CLUSTER_SIZE); do
-	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN="$CONSUL_TOKEN" -e AGENT_TOKEN="$CONSUL_TOKEN" --index=$i -w /tmp consul sh -c 'curl -s --header "X-Consul-Token: $CONSUL_TOKEN" --data "{\"Token\": \"$CONSUL_TOKEN\"}" -XPUT http://127.0.0.1:8500/v1/agent/token/acl_agent_token'
+	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN="$CONSUL_TOKEN" -e AGENT_TOKEN="$CONSUL_TOKEN" --index=$i -w /tmp consul sh -c 'consul acl set-agent-token master $CONSUL_TOKEN'
 done
 printf '\e[0;32m done\e[0m\n'
 

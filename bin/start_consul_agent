@@ -91,10 +91,10 @@ else
 
 		# ACL Datacenter configuration
 		if [ -z "$CONSUL_ACL_DC" ]; then
-			log "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
+			log "Primary Datacenter not defined, defaulting to $CONSUL_DC_NAME"
 			export CONSUL_ACL_DC="$CONSUL_DC_NAME"
 		fi
-		sh -c "{ rm /etc/consul/consul.json; jq '.acl_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
+		sh -c "{ rm /etc/consul/consul.json; jq '.primary_datacenter = env.CONSUL_ACL_DC' > /etc/consul/consul.json; } < /etc/consul/consul.json"
 
 		exec -a consul consul agent -config-dir=/etc/consul/ -data-dir=/data -datacenter="$CONSUL_DC_NAME" -domain="${CONSUL_DOMAIN:=consul}" -retry-join=consul -retry-join="${CONSUL_BOOTSTRAP_HOST:-127.0.0.1}" -retry-join="$CONSUL_DNS_NAME" -encrypt="$CONSUL_ENCRYPT_TOKEN"
 fi
