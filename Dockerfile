@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 ARG BUILD_DATE
 ARG VCS_REF
-ARG CONSUL_VERSION=1.3.0
+ARG CONSUL_VERSION=1.4.0
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
 LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>" \
