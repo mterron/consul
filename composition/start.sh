@@ -76,11 +76,11 @@ printf '\e[0;32m done\e[0m\n'
 printf '\n* Bootstrapping Consul ACL system\n'
 set -e
 
-CONSUL_TOKEN=$(docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh -c "consul acl bootstrap | awk '/SecretID:/{print $2}'")
+CONSUL_TOKEN=$(docker-compose -p "$COMPOSE_PROJECT_NAME" exec -w /tmp consul sh -c "consul acl bootstrap grep 'SecretID'|sed 's/SecretID:\s*//g'")
 printf "Consul ACL token: \e[38;5;198m${CONSUL_TOKEN}\e[0m\n"
 
 # Install Agent token
-printf ' > Installing Consul agent token ...'
+printf ' > Installing Consul agent token ...\n'
 for i in $(seq $CONSUL_CLUSTER_SIZE); do
 	docker-compose -p "$COMPOSE_PROJECT_NAME" exec -e CONSUL_TOKEN="$CONSUL_TOKEN" -e AGENT_TOKEN="$CONSUL_TOKEN" --index=$i -w /tmp consul sh -c 'consul acl set-agent-token master $CONSUL_TOKEN'
 done
