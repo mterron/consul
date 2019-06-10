@@ -10,7 +10,7 @@
 2. Import the example client certificate (one of client_certificate.p12, client_certificate.pem, etc). This image requires client validation, an example certificate is provided ***but you should generate your own***. The password for the p12 file is "client". Also provided is a .pem and .key files for the same certificate. 
 3. `cd composition` into the cloned or downloaded directory
 4. run ./start.sh
-5. A browser with the Consul UI will open (on Mac OS X) or browse to "https://DOCKER\_IP:BOOTSTRAP\_UI\_PORT as shown on your screen.
+5. A browser with the Consul UI will open (on Mac OS X) or browse to "https://DOCKER_IP:BOOTSTRAP_UI_PORT as shown on your screen.
 
 ## How it works
 
