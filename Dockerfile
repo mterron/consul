@@ -3,7 +3,7 @@ MAINTAINER Miguel Terron <miguel.a.terron@gmail.com>
 
 ARG BUILD_DATE
 ARG VCS_REF
-ARG CONSUL_VERSION=1.4.0
+ARG CONSUL_VERSION=1.6.0-rc1
 ARG HASHICORP_PGP_KEY=51852D87348FFC4C
 
 LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>" \
@@ -14,7 +14,7 @@ LABEL maintainer="Miguel Terron <miguel.a.terron@gmail.com>" \
 	  org.label-schema.version=$CONSUL_VERSION \
 	  org.label-schema.description="Alpine based Consul image"
 
-RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec tini tzdata wget &&\
+RUN	apk -q --no-cache add binutils curl gnupg jq libcap su-exec tini tzdata wget &&\
 	gpg --keyserver hkps://hkps.pool.sks-keyservers.net:443 --recv-keys "$HASHICORP_PGP_KEY" &&\
 	echo 'Download Consul binary' &&\
 	wget -nv --progress=bar:force --show-progress https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip &&\
@@ -34,7 +34,7 @@ RUN	apk -q --no-cache add binutils ca-certificates curl gnupg jq libcap su-exec 
 	chown consul:root /data /etc/consul /run/consul &&\
 	chmod 6550 /sbin/su-exec &&\
 # Cleanup
-	apk -q --no-cache del --purge binutils ca-certificates gnupg wget libcap &&\
+	apk -q --no-cache del --purge binutils gnupg wget libcap &&\
 	rm -rf consul_${CONSUL_VERSION}_* .ash* /root/.gnupg
 
 # Copy binaries. bin directory contains startup script
